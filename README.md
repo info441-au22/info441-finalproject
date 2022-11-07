@@ -23,11 +23,16 @@ statistics associated with what type of music they listen to. Having the ability
 # Features
 
 **1 Leaderboards** - display a user's top ten most played songs, top ten most played playlists, top ten most skipped songs, top ten most fully played through songs? (Maybe stats for the previous month) (ability to filter the leaderboard by time period)
+
 **2 Time spent listening to…** - tell a user how many minutes they spent listening to music on a day/week/month/etc, with visualization (chartJS?) to see the difference in time spent between days, months, and other units of time
+
 **3 Public Profile** - display your profile to others to view and see your leaderboards
+
 **Accounts** - user accounts with public view and internal view (which would have time capsule and random playlist features)
 Sharing - share your leaderboards to others (Png? Link to public profile view?)
+
 **3.1 (Internal) Time Capsule functionality** - grab songs from a given month and create a playlist (maybe let users select time period)
+
 **3.2 (Internal) Random Playlist By Genre** - select genres, get a random playlist generated and stored into database, present to user the songs and if they want to keep or change them, copy them over into a spotify playlist (option to select songs based off of plays)
 
 # Tech
