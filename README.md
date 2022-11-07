@@ -1,70 +1,95 @@
-# Getting Started with Create React App
+# Project Description 
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+For our project proposal, our target audience is going to be Spotify users. We envision Spotify users that are interested in viewing their analytics using our application to gain further insight on the things they listen to. People curious about their listening habits and how it evolves may want to use our application as a way to look at that information, then use it to further explore possible music interests. 
+We ourselves as Spotify users have come across the problem of not being able to easily view the statistics associated with the music we listen to, except when Spotify Wrapped gets released at the end of each year. We know Spotify Wrapped is successful as at the end of every year it's not uncommon to see users sharing their stats across social media, and believe that it would be beneficial to have a way to view stats like the ones Spotify Wrapped provides at any given time through our application. No longer would the users be at the mercy of when Spotify decides to release Spotify Wrapped in seeing how their music listening habits have changed. Anyone who wants to view their stats would be able to through what our application provides.
 
-## Available Scripts
+We believe that a lot of Spotify users would find this application beneficial, and want to be able to view their listening habits and see the 
+statistics associated with what type of music they listen to. Having the ability to further explore those statistics with the ability to look at certain time frames, genres, playlists, etcetera would enable users to find more music aligned with their interests.
 
-In the project directory, you can run:
+# Architectural Diagram
+[Latest Version of Diagram](https://drive.google.com/file/d/1w2agbpS1FLcfwB96QfJlsfnvM6AnF0ey/view)
 
-### `npm start`
+# User Stories
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+|Priority|User|Description|Technical Implementation| 
+|--------|----|-----------|------------------------|
+|P0|As a user|I want to be able to login with Spotify|Spotify Authentication| 
+|P0|As a user|I want to be able to select a genre and create a randomized “Spotify capsules” playlist from the users library that is shareable and filterable.|Grab songs that the user added to any of their playlists during the given metric  from Spotify’s API (Get), and POST the songs to a playlist in the users library through the same API. 
+|P1|As a user|I want to be able to select a time frame and create a randomized “Spotify capsules” playlist from the users library that is shareable and filterable.|Grab songs that the user added to any of their playlists during the given metric  from Spotify’s API (Get), and POST the songs to a playlist in the users library through the same API.
+|P2|As a user|I want to be able to create/save a current “leaderboard” of most played and least played songs from my library which can appear to friends.|Grab user stat data from Spotify’s API, and POST the snapshot to the user database.|
+|P3|As a user|I want to be able to share my leaderboard with others|Generate a shareable screenshot OR public link to view friend’s leaderboard|
+|P4|As a user|I want to be able to check other friend’s leaderboards, Spotify capsules, and public profiles.|Display all of the leaderboards, Spotify capsules, and their public profile to the user’s friends entries in the database (GET request).|
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+# Features
 
-### `npm test`
+**1 Leaderboards** - display a user's top ten most played songs, top ten most played playlists, top ten most skipped songs, top ten most fully played through songs? (Maybe stats for the previous month) (ability to filter the leaderboard by time period)
+**2 Time spent listening to…** - tell a user how many minutes they spent listening to music on a day/week/month/etc, with visualization (chartJS?) to see the difference in time spent between days, months, and other units of time
+**3 Public Profile** - display your profile to others to view and see your leaderboards
+**Accounts** - user accounts with public view and internal view (which would have time capsule and random playlist features)
+Sharing - share your leaderboards to others (Png? Link to public profile view?)
+**3.1 (Internal) Time Capsule functionality** - grab songs from a given month and create a playlist (maybe let users select time period)
+**3.2 (Internal) Random Playlist By Genre** - select genres, get a random playlist generated and stored into database, present to user the songs and if they want to keep or change them, copy them over into a spotify playlist (option to select songs based off of plays)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+# Tech
+**Hosting:** Azure
+**Auth:** Spotify Auth 
+**Server:** Expressjs
+**Tech:** Reactjs, MongoDB, Spotify API
+**Styling:** TailwindCSS? MaterialUI? AmplifyUI?
 
-### `npm run build`
+# Endpoints
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+/signin
+POST: Sign in
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+/signout
+POST: Sign out
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+/profile
+GET: Retrieve profile data of given username in the query (?username=)
 
-### `npm run eject`
+/createtimecapsule
+POST: Use given time frame(?timeframe=)  to compile all songs user has added to any playlist during this time into one playlist in user’s Spotify library 
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+/createrandomplaylist
+POST:  Use given genre (?genre=) to create a playlist that lives inside user’s Spotify library
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+/createlink
+GET: Create shareable link for a given playlist or leaderboard snapshot
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+/leaderboards
+GET: Returns user’s top stats for a given time period
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+# Database Schema (MongoDB)
 
-## Learn More
+#### User
+- User ID
+- Username
+- Name
+- Email
+- DOB
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+#### Leaderboards
+- Playlists
+- Songs
+- Dates
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+#### Session
+- Session ID
+- Current Users
 
-### Code Splitting
+#### Playlists
+- Playlist ID
+- Genre
+- User ID
+- Playlist Link
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+#### Song
+- Song ID
+- Artist Name
+- Song Name
+- Playlists (JSON Column with Playlist ID’s)
+- Times Skipped
+- Number of Listens
+- Play History(JSON Column with Dates when it was played by a user)
 
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
