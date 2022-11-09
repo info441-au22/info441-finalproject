@@ -1,6 +1,7 @@
 # Project Description 
 
 For our project proposal, our target audience is going to be Spotify users. We envision Spotify users that are interested in viewing their analytics using our application to gain further insight on the things they listen to. People curious about their listening habits and how it evolves may want to use our application as a way to look at that information, then use it to further explore possible music interests. 
+
 We ourselves as Spotify users have come across the problem of not being able to easily view the statistics associated with the music we listen to, except when Spotify Wrapped gets released at the end of each year. We know Spotify Wrapped is successful as at the end of every year it's not uncommon to see users sharing their stats across social media, and believe that it would be beneficial to have a way to view stats like the ones Spotify Wrapped provides at any given time through our application. No longer would the users be at the mercy of when Spotify decides to release Spotify Wrapped in seeing how their music listening habits have changed. Anyone who wants to view their stats would be able to through what our application provides.
 
 We believe that a lot of Spotify users would find this application beneficial, and want to be able to view their listening habits and see the 
@@ -22,25 +23,24 @@ statistics associated with what type of music they listen to. Having the ability
 
 # Features
 
-**1 Leaderboards** - display a user's top ten most played songs, top ten most played playlists, top ten most skipped songs, top ten most fully played through songs? (Maybe stats for the previous month) (ability to filter the leaderboard by time period)
+**1: "Capsules" functionality** - grab songs from a given genre/time-frame and create a playlist.
 
-**2 Time spent listening to…** - tell a user how many minutes they spent listening to music on a day/week/month/etc, with visualization (chartJS?) to see the difference in time spent between days, months, and other units of time
+**2: Leaderboards** - display a user's top ten most and least played songs, playlists, in a given time-frame.
 
-**3 Public Profile** - display your profile to others to view and see your leaderboards
-
-**Accounts** - user accounts with public view and internal view (which would have time capsule and random playlist features)
-Sharing - share your leaderboards to others (Png? Link to public profile view?)
-
-**3.1 (Internal) Time Capsule functionality** - grab songs from a given month and create a playlist (maybe let users select time period)
-
-**3.2 (Internal) Random Playlist By Genre** - select genres, get a random playlist generated and stored into database, present to user the songs and if they want to keep or change them, copy them over into a spotify playlist (option to select songs based off of plays)
+**3: Accounts** - Spotify user accounts auth with sharing/export for capsules and leaderboards.
+- Sharing - share your leaderboards to others (png, link)
 
 # Tech
 **Hosting:** Azure
+
 **Auth:** Spotify Auth 
+
 **Server:** Expressjs
+
 **Tech:** Reactjs, MongoDB, Spotify API
+
 **Styling:** TailwindCSS? MaterialUI? AmplifyUI?
+
 
 # Endpoints
 
