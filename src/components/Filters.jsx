@@ -20,13 +20,14 @@ function Filters() {
   const [uriCounter, setUriCounter] = useState(0);
 
   
-
+  // Grab the user's spotify access token from local storage (this is after you press the log in button)
   useEffect(() => {
     if (localStorage.getItem("accessToken")) {
       setToken(localStorage.getItem("accessToken"))
     }
   }, []);
 
+  // Console logging state variables
   useEffect(() => {
     //console.log(playlists)
     console.log(token)
@@ -43,6 +44,7 @@ function Filters() {
         Authorization: "Bearer " + token,
       },
     }).then((response) => {
+      // Store playlists in state variable
       for (var i=0; i < response.data["items"].length; i++) {
         var endpoint = response.data.items[i].tracks.href
         handleGetPlaylistDetails(endpoint)
@@ -91,6 +93,7 @@ function Filters() {
     });
   }
 
+  // Doesn't do anything yet
   const handleFilterPlaylists = () => {
     axios.get(GET_PLAYLIST_ITEMS_ENDPOINT, {
       headers: {
