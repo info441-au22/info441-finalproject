@@ -2,7 +2,8 @@ import React, { useEffect } from "react";
 
 const CLIENT_ID = "1afe16f7b5c44f1ab21bc53d0af990fb";
 const SPOTIFY_AUTHORIZE_ENDPOINT = "https://accounts.spotify.com/authorize";
-const REDIRECT_URI = "http://localhost:3000/";
+// const REDIRECT_URI = "http://localhost:3000/"; // for auth on localhost
+const REDIRECT_URI = "https://spotify-recap.parsak.me/"; // for auth on azure hosting
 const SCOPES = [
   "playlist-read-collaborative",
   "playlist-modify-public",
@@ -11,9 +12,7 @@ const SCOPES = [
 ];
 const SPACE_DELIMITER = "%20";
 const SCOPES_COMBINED = SCOPES.join(SPACE_DELIMITER);
-/*
-http://localhost:3000/#access_token=BQCx5S41-5GIFZlNNLZ1Q7l4bKcuiRo6ZOhvQZZ70zq2-khn-FA4wi9TX2bWUffWd853MWVUTAIoMRHjvBh4wxnzNwSDTEgz9e1imQnBn7SLzsuDruGZUMEqaiRrRhTHGPieCF854dRGYfg2vfxLJj49LNv2EiU8kFgIXsxACOsCfZJKJDfs2PUYVg-yg5MvZpEdGPrj_VaaP1FeiXOXzEIUGHNCkARsf8vBXbaezWjTrg&token_type=Bearer&expires_in=3600
-*/
+
 const getReturnedParamsFromSpotifyAuth = (hash) => {
   const stringAfterHashtag = hash.substring(1);
   const paramsInUrl = stringAfterHashtag.split("&");
