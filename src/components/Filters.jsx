@@ -144,15 +144,15 @@ function Filters() {
   const handleCreatePlaylist = () => {
     var data = JSON.stringify({
       name: "Spotify Capsule Playlist",
-      description: "To be filled in with randomized songs from a given time period.",
+      description:
+        "To be filled in with randomized songs from a given time period.",
       public: false,
     });
     var config = {
       method: "post",
       url: CREATE_CUSTOM_PLAYLIST + userId + "/playlists",
       headers: {
-        Authorization:
-          "Bearer " + token,
+        Authorization: "Bearer " + token,
         "Content-Type": "application/json",
       },
       data: data,
@@ -166,25 +166,25 @@ function Filters() {
       .catch(function (error) {
         console.log(error);
       });
-  //   axios
-  //     .post(CREATE_CUSTOM_PLAYLIST + userId + "/playlists", {
-  //       headers: {
-  //         Authorization:
-  //           "Bearer " +
-  //           "BQDnRpGtc0ZScs5_-j0QSS6gCp3VCxhLYCN1QZdwaEQrhKZGa4x7sV3yuRvpQ6RWKi6n5jF6eEiXGfzQDRG1g6oWAa82dWbamX_cNu7Cq67RK3Kpw-Eg4RbmOJpsPwjoR3w15DGgF-165GMlumCGNtLxYlvmt8p6BtE4OXBHp_8IY1rV4DV0M1odt6RhC2E_3H79_CrHNDMshnuNpBm_KxLRFSTctdDcuqKVEGq_dHueBXSgvDJ3v2UbYSYG6gqSH312RD9uLC0mHw",
-  //         "Content-Type": "application/json",
-  //       },
-  //       data: data,
-  //     })
-  //     .then((response) => {
-  //       setCreatedPlaylistId(response.data["id"]);
-  //       console.log(response);
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //     });
+    //   axios
+    //     .post(CREATE_CUSTOM_PLAYLIST + userId + "/playlists", {
+    //       headers: {
+    //         Authorization:
+    //           "Bearer " +
+    //           "BQDnRpGtc0ZScs5_-j0QSS6gCp3VCxhLYCN1QZdwaEQrhKZGa4x7sV3yuRvpQ6RWKi6n5jF6eEiXGfzQDRG1g6oWAa82dWbamX_cNu7Cq67RK3Kpw-Eg4RbmOJpsPwjoR3w15DGgF-165GMlumCGNtLxYlvmt8p6BtE4OXBHp_8IY1rV4DV0M1odt6RhC2E_3H79_CrHNDMshnuNpBm_KxLRFSTctdDcuqKVEGq_dHueBXSgvDJ3v2UbYSYG6gqSH312RD9uLC0mHw",
+    //         "Content-Type": "application/json",
+    //       },
+    //       data: data,
+    //     })
+    //     .then((response) => {
+    //       setCreatedPlaylistId(response.data["id"]);
+    //       console.log(response);
+    //     })
+    //     .catch((error) => {
+    //       console.log(error);
+    //     });
   };
-  
+
   const handleGetUserId = () => {
     axios
       .get(USER_ID_ENDPOINT, {
@@ -217,6 +217,7 @@ function Filters() {
   };
   return (
     <>
+      <br />
       <button
         onClick={() => {
           handleGetPlaylists();
@@ -226,13 +227,15 @@ function Filters() {
       >
         Results
       </button>
-
+      <br />
       <button
         onClick={() => {
           handleCreatePlaylist();
         }}
-      >Create Playlist</button>
-
+      >
+        Create Playlist
+      </button>
+      <br />
       <Dropdown>
         <Dropdown.Toggle variant="success" id="season-dropdown">
           Season
@@ -251,7 +254,7 @@ function Filters() {
           <Dropdown.Item onClick={() => setSeason("Fall")}>Fall</Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>
-
+      <br />
       <Dropdown>
         <Dropdown.Toggle variant="success" id="season-dropdown">
           Year

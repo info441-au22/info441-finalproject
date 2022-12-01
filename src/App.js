@@ -15,3 +15,5 @@ function App() {
 }
 
 export default App;
+
+// note to parsa: redeploy to azure with 'az webapp up --name spotify-recap-app --logs --launch-browser'
