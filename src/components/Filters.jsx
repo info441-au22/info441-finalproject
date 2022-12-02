@@ -16,7 +16,7 @@ const WINTER = ["12-21", "03-19"];
 
 // The max number of songs that
 var song_limit = 60;
-let playlistURI = "";
+let playlistURI = [];
 
 function Filters() {
   const [token, setToken] = useState("");
@@ -26,7 +26,44 @@ function Filters() {
   const [season, setSeason] = useState({});
   const [uriCounter, setUriCounter] = useState(0);
   const [createdPlaylistId, setCreatedPlaylistId] = useState("");
+  const [playListName, setPlaylistName] = useState("");
+  const [selectYear, handleSelectYear] = useState(false);
+  const [selectSeason, handleSelectSeason] = useState(false);
+  //const [playlistURI, setURI] = useState([]);
 
+  const handlePlaylistName = (e) => {
+    setPlaylistName(e.target.value);
+  }
+
+  const years = [2019, 2020, 2021, 2022]
+
+  const date_constants = new Map();
+  for(let i = 0; i < years.length; i++) {
+    date_constants.set(years[i], {
+      "Winter": {
+        "start": years[i]+ "-12-21T00:00:00Z",
+        "end": years[i + 1]+ "-03-19T00:00:00Z"
+      },
+      "Spring": {
+        "start": years[i]+ "-03-20T00:00:00Z",
+        "end": years[i]+ "-06-20T00:00:00Z"
+      },
+      "Summer": {
+        "start": years[i]+ "-06-21T00:00:00Z",
+        "end": years[i]+ "-09-21T00:00:00Z"
+      },
+      "Fall": {
+        "start": years[i]+ "-09-22T00:00:00Z",
+        "end": years[i]+ "-12-20T00:00:00Z"
+      },
+    })
+  }
+
+  const dropDownOptionsComponent = years.map((year) => {
+    return(
+      <Dropdown.Item onClick={() => {setYear(year);handleSelectYear(true);}}>{year}</Dropdown.Item>
+    )
+  })
   // Grab the user's spotify access token from local storage (this is after you press the log in button)
   useEffect(() => {
     if (localStorage.getItem("accessToken")) {
@@ -79,45 +116,53 @@ function Filters() {
         },
       })
       .then((response) => {
+        console.log("Response for song = ", response.data)
         // console.log(response.data)
         var songs = response.data.items;
         let songHtml = "<p>Song Names:</p>";
-        // tracks how many songs have been added from this particular playlist (needed because
-        // the song add limit for a post req is 50 song uri's)
-        let num_songs_added = 0;
+        // tracks how many songs have been added from this particular playlist
+        // the number of songs being checked is 100 song uri's
+        let num_songs_checked = 0;
         // console.log(response.data)
         // process playlist then return URIs of all songs inside playlist
         for (var i = 0; i < response.data.items.length; i++) {
-          if (songs[i].added_at.substring(0, 10) > "2021" + SPRING[0]) {
-            num_songs_added++;
-            song_limit--;
-
-            if (song_limit > 0 && num_songs_added <= 50) {
-              playlistURI += songs[i]["track"]["uri"] + ", ";
-
-              console.log(songs[i]);
-              console.log(songs[i].track.uri); // uri is for adding to a new playlist
+          //  "2022-12-02T05:56:28Z"
+          const date_added = new Date(songs[i].added_at);
+          const spring_2022_start = new Date("2022-06-20T00:00:00Z");
+          const spring_2022_end = new Date("2022-09-20T00:00:00Z");
+          // const year = this.year;
+          // const season = this.season;
+          console.log("date_constants: ", date_constants);
+          console.log("date_constants get year: ", date_constants.get(year));
+          console.log("date_constants get year get season: ", date_constants.get(year).season);
+          console.log("date_constants get year get season[]: ", date_constants.get(year)[season]);
+          console.log("date_constants get year get season start[]: ", date_constants.get(year)[season].start);
+          if (Date.parse(date_added) > Date.parse(date_constants.get(year)[season].start) && Date.parse(date_added) < Date.parse(date_constants.get(year)[season].end)) {
+            num_songs_checked++;
+            var random_boolean = Math.random() < 0.5; 
+            if (random_boolean == true && song_limit > 0 && num_songs_checked <= 100) { // randomly choose 20 songs from given season and year to add to playlist
+              song_limit--;
+              console.log("playlist uri inside loop: ", songs[i].track.uri)
+              playlistURI.push((songs[i].track.uri).toString());
               let songsTrackName = songs[i]["track"]["name"];
               let songTrackUrl = songs[i]["track"]["external_urls"]["spotify"];
-              console.log(songsTrackName);
-              console.log(songTrackUrl);
               songHtml += `<p>${songsTrackName} - ${songTrackUrl}</p>`;
               for (var j = 0; j < songs[i].track.artists.length; j++) {
                 let artistName = songs[i].track.artists[j].name;
                 songHtml += artistName + "<br>";
-                console.log(artistName);
               }
             }
           }
-          console.log(songHtml);
+          
         }
+        console.log("Playlist URI", playlistURI);
 
         // 	https://api.spotify.com/v1/playlists/{playlist_id}/tracks
         // POST Docs:
         // https://developer.spotify.com/documentation/web-api/reference/#/operations/add-tracks-to-playlist
         // stuff to add songs to a newly created playlist
-        let temp = validSongs + playlistURI;
-        setValidSongs(temp);
+        ////let temp = validSongs + playlistURI;
+        // setValidSongs(temp);
         console.log(validSongs.length);
         // setValidSongs(valid);
       })
@@ -127,14 +172,20 @@ function Filters() {
   };
 
   const handleAddSongsToPlaylist = () => {
-    axios
-      .post(ADD_SONGS_TO_PLAYLIST + createdPlaylistId + "/tracks", {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      })
-      .then((id) => {
-        setUserId(id.data["display_name"]);
+    var data = JSON.stringify({
+      uris: playlistURI,
+      position: 0,
+    });
+    var config = {
+      method: "post",
+      url: ADD_SONGS_TO_PLAYLIST + createdPlaylistId + "/tracks",
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+      data: data,
+    };
+    axios(config)
+      .then((response) => {
       })
       .catch((error) => {
         console.log(error);
@@ -142,8 +193,9 @@ function Filters() {
   };
 
   const handleCreatePlaylist = () => {
+    let uris = []
     var data = JSON.stringify({
-      name: "Spotify Capsule Playlist",
+      name: playListName,
       description:
         "To be filled in with randomized songs from a given time period.",
       public: false,
@@ -158,32 +210,17 @@ function Filters() {
       data: data,
     };
     axios(config)
-      .then(function (response) {
+      .then((response) => {
         console.log(JSON.stringify(response.data));
-        setCreatedPlaylistId(response.data["id"]);
+        setCreatedPlaylistId(response.data.id);
+        console.log("playlist id = ", createdPlaylistId)
         console.log(response);
       })
       .catch(function (error) {
         console.log(error);
       });
-    //   axios
-    //     .post(CREATE_CUSTOM_PLAYLIST + userId + "/playlists", {
-    //       headers: {
-    //         Authorization:
-    //           "Bearer " +
-    //           "BQDnRpGtc0ZScs5_-j0QSS6gCp3VCxhLYCN1QZdwaEQrhKZGa4x7sV3yuRvpQ6RWKi6n5jF6eEiXGfzQDRG1g6oWAa82dWbamX_cNu7Cq67RK3Kpw-Eg4RbmOJpsPwjoR3w15DGgF-165GMlumCGNtLxYlvmt8p6BtE4OXBHp_8IY1rV4DV0M1odt6RhC2E_3H79_CrHNDMshnuNpBm_KxLRFSTctdDcuqKVEGq_dHueBXSgvDJ3v2UbYSYG6gqSH312RD9uLC0mHw",
-    //         "Content-Type": "application/json",
-    //       },
-    //       data: data,
-    //     })
-    //     .then((response) => {
-    //       setCreatedPlaylistId(response.data["id"]);
-    //       console.log(response);
-    //     })
-    //     .catch((error) => {
-    //       console.log(error);
-    //     });
   };
+
 
   const handleGetUserId = () => {
     axios
@@ -216,7 +253,35 @@ function Filters() {
       });
   };
   return (
-    <>
+    <section>
+      
+      <Dropdown>
+        <Dropdown.Toggle variant="success" id="season-dropdown">
+          Season
+        </Dropdown.Toggle>
+
+        <Dropdown.Menu>
+          <Dropdown.Item onClick={() => {setSeason("Winter");handleSelectSeason(true);}}>
+            Winter
+          </Dropdown.Item>
+          <Dropdown.Item onClick={() => {setSeason("Spring");handleSelectSeason(true);}}>
+            Spring
+          </Dropdown.Item>
+          <Dropdown.Item onClick={() => {setSeason("Summer");handleSelectSeason(true);}}>
+            Summer
+          </Dropdown.Item>
+          <Dropdown.Item onClick={() => {setSeason("Fall");handleSelectSeason(true);}}>Fall</Dropdown.Item>
+        </Dropdown.Menu>
+      </Dropdown>
+      <Dropdown>
+        <Dropdown.Toggle variant="success" id="season-dropdown">
+          Year
+        </Dropdown.Toggle>
+
+        <Dropdown.Menu>
+          {dropDownOptionsComponent}
+        </Dropdown.Menu>
+      </Dropdown>
       <br />
       <button
         onClick={() => {
@@ -225,60 +290,29 @@ function Filters() {
           handleFilterPlaylists();
         }}
       >
-        Results
+        Gather your songs...
       </button>
       <br />
+      <label for="playlistName">Playlist Name: </label>
+      <input type="text" id="playlistName" name="playlistName" onChange={handlePlaylistName} />
       <button
         onClick={() => {
-          handleCreatePlaylist();
+          handleCreatePlaylist();    
         }}
       >
         Create Playlist
       </button>
       <br />
-      <Dropdown>
-        <Dropdown.Toggle variant="success" id="season-dropdown">
-          Season
-        </Dropdown.Toggle>
-
-        <Dropdown.Menu>
-          <Dropdown.Item onClick={() => setSeason("Winter")}>
-            Winter
-          </Dropdown.Item>
-          <Dropdown.Item onClick={() => setSeason("Spring")}>
-            Spring
-          </Dropdown.Item>
-          <Dropdown.Item onClick={() => setSeason("Summer")}>
-            Summer
-          </Dropdown.Item>
-          <Dropdown.Item onClick={() => setSeason("Fall")}>Fall</Dropdown.Item>
-        </Dropdown.Menu>
-      </Dropdown>
-      <br />
-      <Dropdown>
-        <Dropdown.Toggle variant="success" id="season-dropdown">
-          Year
-        </Dropdown.Toggle>
-
-        <Dropdown.Menu>
-          <Dropdown.Item onClick={() => setYear(2008)}>2008</Dropdown.Item>
-          <Dropdown.Item onClick={() => setYear(2009)}>2009</Dropdown.Item>
-          <Dropdown.Item onClick={() => setYear(2010)}>2010</Dropdown.Item>
-          <Dropdown.Item onClick={() => setYear(2011)}>2011</Dropdown.Item>
-          <Dropdown.Item onClick={() => setYear(2012)}>2012</Dropdown.Item>
-          <Dropdown.Item onClick={() => setYear(2013)}>2013</Dropdown.Item>
-          <Dropdown.Item onClick={() => setYear(2014)}>2014</Dropdown.Item>
-          <Dropdown.Item onClick={() => setYear(2015)}>2015</Dropdown.Item>
-          <Dropdown.Item onClick={() => setYear(2016)}>2016</Dropdown.Item>
-          <Dropdown.Item onClick={() => setYear(2017)}>2017</Dropdown.Item>
-          <Dropdown.Item onClick={() => setYear(2018)}>2018</Dropdown.Item>
-          <Dropdown.Item onClick={() => setYear(2019)}>2019</Dropdown.Item>
-          <Dropdown.Item onClick={() => setYear(2020)}>2020</Dropdown.Item>
-          <Dropdown.Item onClick={() => setYear(2021)}>2021</Dropdown.Item>
-          <Dropdown.Item onClick={() => setYear(2022)}>2022</Dropdown.Item>
-        </Dropdown.Menu>
-      </Dropdown>
-    </>
+      <button
+        onClick={() => {
+          handleAddSongsToPlaylist();
+          playlistURI = [];        
+        }}
+        disabled={!(selectSeason && selectYear)}
+      >
+        Add song's to the Playlist
+      </button>
+    </section>
   );
 }
 

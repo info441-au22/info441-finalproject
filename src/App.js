@@ -16,4 +16,4 @@ function App() {
 
 export default App;
 
-// note to parsa: redeploy to azure with 'az webapp up --name spotify-recap-app --logs --launch-browser'
+// note to parsa: redeploy to azure with 'az webapp up --name spotify-recap-app --logs --launch-browser' kill current deployment with: 'az webapp deployment source delete --name spotify-recap-app --resource-group spotify-recap'
