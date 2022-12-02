@@ -24,12 +24,10 @@ function Filters() {
   const [userId, setUserId] = useState({});
   const [year, setYear] = useState({});
   const [season, setSeason] = useState({});
-  const [uriCounter, setUriCounter] = useState(0);
   const [createdPlaylistId, setCreatedPlaylistId] = useState("");
   const [playListName, setPlaylistName] = useState("");
   const [selectYear, handleSelectYear] = useState(false);
   const [selectSeason, handleSelectSeason] = useState(false);
-  //const [playlistURI, setURI] = useState([]);
 
   const handlePlaylistName = (e) => {
     setPlaylistName(e.target.value);
@@ -64,6 +62,7 @@ function Filters() {
       <Dropdown.Item onClick={() => {setYear(year);handleSelectYear(true);}}>{year}</Dropdown.Item>
     )
   })
+
   // Grab the user's spotify access token from local storage (this is after you press the log in button)
   useEffect(() => {
     if (localStorage.getItem("accessToken")) {
@@ -73,13 +72,7 @@ function Filters() {
 
   // Console logging state variables
   useEffect(() => {
-    //console.log(playlists)
-    //console.log(token)
     console.log(userId);
-    //console.log(year)
-    //console.log(season)
-    //console.log(validSongs);
-    //console.log(uriCounter)
   }, []);
 
   // this is returning a list of 50 of the users recent playlists
@@ -94,9 +87,6 @@ function Filters() {
         // initial response of json with 50 playlists
         for (var i = 0; i < response.data["items"].length; i++) {
           var playlistEndpoint = response.data.items[i].tracks.href;
-          console.log(playlistEndpoint);
-          // iterates through list of 50 playlists that is returned, then passes href/playlist endpoint to handleGetPlaylistDetails for further processing
-          // (sent as https://api.spotify.com/v1/playlists/xxxxxxxxxxxxxxxxxxxx/tracks)
           handleGetPlaylistDetails(playlistEndpoint);
         }
         // Restore the song limit counter variables (it is counted down in use)
@@ -116,33 +106,20 @@ function Filters() {
         },
       })
       .then((response) => {
-        console.log("Response for song = ", response.data)
-        // console.log(response.data)
         var songs = response.data.items;
         let songHtml = "<p>Song Names:</p>";
         // tracks how many songs have been added from this particular playlist
         // the number of songs being checked is 100 song uri's
         let num_songs_checked = 0;
-        // console.log(response.data)
         // process playlist then return URIs of all songs inside playlist
         for (var i = 0; i < response.data.items.length; i++) {
           //  "2022-12-02T05:56:28Z"
           const date_added = new Date(songs[i].added_at);
-          const spring_2022_start = new Date("2022-06-20T00:00:00Z");
-          const spring_2022_end = new Date("2022-09-20T00:00:00Z");
-          // const year = this.year;
-          // const season = this.season;
-          console.log("date_constants: ", date_constants);
-          console.log("date_constants get year: ", date_constants.get(year));
-          console.log("date_constants get year get season: ", date_constants.get(year).season);
-          console.log("date_constants get year get season[]: ", date_constants.get(year)[season]);
-          console.log("date_constants get year get season start[]: ", date_constants.get(year)[season].start);
           if (Date.parse(date_added) > Date.parse(date_constants.get(year)[season].start) && Date.parse(date_added) < Date.parse(date_constants.get(year)[season].end)) {
             num_songs_checked++;
             var random_boolean = Math.random() < 0.5; 
             if (random_boolean == true && song_limit > 0 && num_songs_checked <= 100) { // randomly choose 20 songs from given season and year to add to playlist
               song_limit--;
-              console.log("playlist uri inside loop: ", songs[i].track.uri)
               playlistURI.push((songs[i].track.uri).toString());
               let songsTrackName = songs[i]["track"]["name"];
               let songTrackUrl = songs[i]["track"]["external_urls"]["spotify"];
@@ -155,16 +132,11 @@ function Filters() {
           }
           
         }
-        console.log("Playlist URI", playlistURI);
 
         // 	https://api.spotify.com/v1/playlists/{playlist_id}/tracks
         // POST Docs:
         // https://developer.spotify.com/documentation/web-api/reference/#/operations/add-tracks-to-playlist
         // stuff to add songs to a newly created playlist
-        ////let temp = validSongs + playlistURI;
-        // setValidSongs(temp);
-        console.log(validSongs.length);
-        // setValidSongs(valid);
       })
       .catch((error) => {
         console.log(error);
@@ -211,10 +183,7 @@ function Filters() {
     };
     axios(config)
       .then((response) => {
-        console.log(JSON.stringify(response.data));
         setCreatedPlaylistId(response.data.id);
-        console.log("playlist id = ", createdPlaylistId)
-        console.log(response);
       })
       .catch(function (error) {
         console.log(error);
@@ -246,7 +215,6 @@ function Filters() {
         },
       })
       .then((songs) => {
-        //console.log(songs.data)
       })
       .catch((error) => {
         console.log(error);
@@ -288,16 +256,18 @@ function Filters() {
           handleGetPlaylists();
           handleGetUserId();
           handleFilterPlaylists();
+          alert("We gathered your songs!")
         }}
       >
         Gather your songs...
       </button>
       <br />
-      <label for="playlistName">Playlist Name: </label>
+      <label htmlFor="playlistName">Playlist Name: </label>
       <input type="text" id="playlistName" name="playlistName" onChange={handlePlaylistName} />
       <button
         onClick={() => {
-          handleCreatePlaylist();    
+          handleCreatePlaylist();
+          alert("Playlist created!")    
         }}
       >
         Create Playlist
@@ -306,7 +276,8 @@ function Filters() {
       <button
         onClick={() => {
           handleAddSongsToPlaylist();
-          playlistURI = [];        
+          playlistURI = [];
+          alert("Songs were added to the playlist!")        
         }}
         disabled={!(selectSeason && selectYear)}
       >
