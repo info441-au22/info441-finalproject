@@ -14,8 +14,6 @@ const SUMMER = ["06-21", "09-21"];
 const FALL = ["09-22", "12-20"];
 const WINTER = ["12-21", "03-19"];
 
-// The max number of songs that
-var song_limit = 60;
 let playlistURI = [];
 
 function Filters() {
@@ -28,9 +26,16 @@ function Filters() {
   const [playListName, setPlaylistName] = useState("");
   const [selectYear, handleSelectYear] = useState(false);
   const [selectSeason, handleSelectSeason] = useState(false);
+  const [songLimit, setSongLimit] = useState(15);
+  const [gatherSongs, handleGatherSongs] = useState(false);
+  const [randomSongsLength, setRandomSongsLength] = useState(0);
 
   const handlePlaylistName = (e) => {
     setPlaylistName(e.target.value);
+  }
+
+  const handleSongLimit = (e) => {
+    setSongLimit(e.target.value);
   }
 
   const years = [2019, 2020, 2021, 2022]
@@ -85,18 +90,16 @@ function Filters() {
       })
       .then((response) => {
         // initial response of json with 50 playlists
-        for (var i = 0; i < response.data["items"].length; i++) {
-          var playlistEndpoint = response.data.items[i].tracks.href;
+        for (let i = 0; i < response.data["items"].length; i++) {
+          let playlistEndpoint = response.data.items[i].tracks.href;
           handleGetPlaylistDetails(playlistEndpoint);
         }
-        // Restore the song limit counter variables (it is counted down in use)
-        song_limit = 20;
       })
       .catch((error) => {
         console.log("server side error in handleGetPlaylists: " + error);
       });
   };
-
+  
   // handleGetPlaylist is getting the songs from each playlist that is passed through
   const handleGetPlaylistDetails = (playlistId) => {
     axios
@@ -106,33 +109,37 @@ function Filters() {
         },
       })
       .then((response) => {
-        var songs = response.data.items;
-        let songHtml = "<p>Song Names:</p>";
-        // tracks how many songs have been added from this particular playlist
-        // the number of songs being checked is 100 song uri's
-        let num_songs_checked = 0;
-        // process playlist then return URIs of all songs inside playlist
-        for (var i = 0; i < response.data.items.length; i++) {
-          //  "2022-12-02T05:56:28Z"
-          const date_added = new Date(songs[i].added_at);
-          if (Date.parse(date_added) > Date.parse(date_constants.get(year)[season].start) && Date.parse(date_added) < Date.parse(date_constants.get(year)[season].end)) {
-            num_songs_checked++;
-            var random_boolean = Math.random() < 0.5; 
-            if (random_boolean == true && song_limit > 0 && num_songs_checked <= 100) { // randomly choose 20 songs from given season and year to add to playlist
-              song_limit--;
-              playlistURI.push((songs[i].track.uri).toString());
-              let songsTrackName = songs[i]["track"]["name"];
-              let songTrackUrl = songs[i]["track"]["external_urls"]["spotify"];
-              songHtml += `<p>${songsTrackName} - ${songTrackUrl}</p>`;
-              for (var j = 0; j < songs[i].track.artists.length; j++) {
-                let artistName = songs[i].track.artists[j].name;
-                songHtml += artistName + "<br>";
-              }
+        let songs = response.data.items;
+        function withinTimeframe(song) {
+          const date_added = new Date(song.added_at);
+          return Date.parse(date_added) > Date.parse(date_constants.get(year)[season].start) &&
+          Date.parse(date_added) < Date.parse(date_constants.get(year)[season].end);
+        }
+        let songs_time_frame = songs.filter((song) => withinTimeframe(song));
+        let random_songs_arr = [];
+        let counter = 0;
+        if(songs_time_frame.length !== 0) {
+          songs_time_frame.forEach((song) => {
+            let random_boolean = (Math.random() < 0.42);
+            if(random_boolean === true) {
+              random_songs_arr.push(song);
+              counter++;
+              setRandomSongsLength(counter)
             }
-          }
+          })
+        } else if(songs_time_frame.length === 0 && counter === 0) {
           
+        } else if(songs_time_frame.length === 0 && counter !== 0) {
+
+        } else {
+          setRandomSongsLength(0);
         }
 
+        let playlist_random_uri = []  
+        for (let i = 0; i < songLimit; i++) {
+          playlist_random_uri.push((random_songs_arr[i].track.uri).toString());            
+        }
+        playlistURI = playlist_random_uri;
         // 	https://api.spotify.com/v1/playlists/{playlist_id}/tracks
         // POST Docs:
         // https://developer.spotify.com/documentation/web-api/reference/#/operations/add-tracks-to-playlist
@@ -144,11 +151,11 @@ function Filters() {
   };
 
   const handleAddSongsToPlaylist = () => {
-    var data = JSON.stringify({
+    let data = JSON.stringify({
       uris: playlistURI,
       position: 0,
     });
-    var config = {
+    let config = {
       method: "post",
       url: ADD_SONGS_TO_PLAYLIST + createdPlaylistId + "/tracks",
       headers: {
@@ -161,18 +168,19 @@ function Filters() {
       })
       .catch((error) => {
         console.log(error);
+        alert("You don't have any songs for the selected time frame. Select a different season and/or year, then gather songs and add to the playlist again.");
       });
   };
 
   const handleCreatePlaylist = () => {
     let uris = []
-    var data = JSON.stringify({
+    let data = JSON.stringify({
       name: playListName,
       description:
         "To be filled in with randomized songs from a given time period.",
       public: false,
     });
-    var config = {
+    let config = {
       method: "post",
       url: CREATE_CUSTOM_PLAYLIST + userId + "/playlists",
       headers: {
@@ -250,14 +258,22 @@ function Filters() {
           {dropDownOptionsComponent}
         </Dropdown.Menu>
       </Dropdown>
+      <label htmlFor="songLimit">Number of Songs in the Playlist: </label>
+      <input type="text" id="songLimit" name="songLimit" onChange={handleSongLimit} />
+      <br />
+      <p>Maximum number of songs you can add is {randomSongsLength}</p>
       <br />
       <button
         onClick={() => {
+          handleGatherSongs(false);
           handleGetPlaylists();
           handleGetUserId();
           handleFilterPlaylists();
+          playlistURI = [];
+          handleGatherSongs(false);
           alert("We gathered your songs!")
         }}
+        disabled={!(selectSeason && selectYear)}
       >
         Gather your songs...
       </button>
@@ -267,8 +283,10 @@ function Filters() {
       <button
         onClick={() => {
           handleCreatePlaylist();
-          alert("Playlist created!")    
+          alert("Playlist created!")
+          console.log("Playlist URI = ", playlistURI)    
         }}
+        disabled={gatherSongs}
       >
         Create Playlist
       </button>
@@ -277,9 +295,9 @@ function Filters() {
         onClick={() => {
           handleAddSongsToPlaylist();
           playlistURI = [];
-          alert("Songs were added to the playlist!")        
+          //alert("Songs were added to the playlist!")        
         }}
-        disabled={!(selectSeason && selectYear)}
+        disabled={gatherSongs}
       >
         Add song's to the Playlist
       </button>
