@@ -99,3 +99,4 @@ GET: Returns user’s top stats for a given time period
 - Number of Listens
 - Play History(JSON Column with Dates when it was played by a user)
 
+###### **Note:** Why didn't we used saved songs? We explored this- We know not everybody makes playlists, but Spotify API has limitations in place for retrieving a users saved songs. With the current functionality they offer, we could only process 50 saved songs at a time. With playlists we are also limited to 50, but with 50 playlists we are able to offer a lot more variety then with 50 songs.
