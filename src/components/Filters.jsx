@@ -25,7 +25,6 @@ function Filters() {
   const [songLimit, setSongLimit] = useState(1);
   const [gatherSongs, handleGatherSongs] = useState(false);
   const [randomSongsLength, setRandomSongsLength] = useState(0);
-  const [publicOrPrivate, handlePublicOrPrivate] = useState(false);
   const [playlistURIs, setPlaylistURIs] = useState("");
 
   // from: https://stackoverflow.com/questions/40263803/native-javascript-or-es6-way-to-encode-and-decode-html-entities
@@ -181,7 +180,7 @@ function Filters() {
         }
         const songs_time_frame = songs.filter((song) => withinTimeframe(song));
         const shuffled_time_frame = [...songs_time_frame].sort(
-          () => 0.5 - Math.random()
+          () => 0.045 - Math.random()
         );
 
         let random_songs_arr = [];
@@ -190,11 +189,8 @@ function Filters() {
         if (shuffled_time_frame.length !== 0) {
           shuffled_time_frame.forEach(
             (song) => {
-              // let random_boolean = (Math.random() < 0.42);
-              // if (random_boolean === true) {
               random_songs_arr.push(song);
               counter++;
-              // setRandomSongsLength(counter);
             }
             // }
           );
@@ -209,8 +205,8 @@ function Filters() {
         for (let i = 0; i < songLimit; i++) {
           playlist_random_uri.push(random_songs_arr[i].track.uri.toString());
         }
-        // i didn't touch anything before this point - Parsa
-        console.log(playlistURI); // this is returning an object with arrays of uris ??? this is why our number so low.. we returning the length of the object
+
+        console.log(playlistURI); // what does this return?
         // (ex: {[[uri][uri][uri]], [[uri][uri]], [uri]}) we only get 3 when its 6 uris... lets fix this
         playlistURI.push(playlist_random_uri); //
         // take playlistURI object of arrays {[],[],[]}, and convert it into an array of string arrays [[]],[]],[]]]
@@ -218,9 +214,6 @@ function Filters() {
         for (const key in playlistURI) {
           stringOfArrays.push(playlistURI[key].toString());
         }
-
-        console.log("array of strings: " + stringOfArrays);
-        // setPlaylistURIs(stringOfArrays);
 
         // we want to take the string thats separated by ',' then make it back into an array so that we can grab its length
         // and see how many random songs we have returned in total
@@ -231,23 +224,6 @@ function Filters() {
         setRandomSongsLength(countURIsFromArray);
         // go to create playlist handler for rest of code
         setPlaylistURIs(splitURIsInString);
-        console.log("string arrays: " + splitURIsInString);
-
-        console.log(
-          "true max URI count: " +
-            countURIsFromArray +
-            " " +
-            typeof countURIsFromArray
-        );
-        // if the song limit is greater then number of available random songs, we set it to the max (random songs length)
-        if (songLimit > countURIsFromArray) {
-          // setSongLimit(countURIsFromArray);
-        }
-        // songLimit = 50
-        // Playlist 1 => add 15 songs
-
-        // songLimit = 35
-        // Playlist 2 (has 36 songs) => 35
 
         // 	https://api.spotify.com/v1/playlists/{playlist_id}/tracks
         // POST Docs:
@@ -303,7 +279,7 @@ function Filters() {
       .catch((error) => {
         console.log(error);
         // alert();
-        console.log(
+        console.error(
           "You don't have any songs for the selected time frame. Select a different season and/or year, then gather songs and add to the playlist again."
         );
       });
@@ -463,27 +439,6 @@ function Filters() {
             </Text>
           )}
 
-          {/* <br />
-          <Button
-            onClick={() => {
-              handleGatherSongs(false);
-              handleGetPlaylists();
-              handleGetUserId();
-              setPlaylistURIs("");
-              handleGatherSongs(false);
-              alert("We gathered your songs!");
-            }}
-            disabled={
-              songLimit % 1 !== 0 ||
-              !(selectSeason && selectYear) ||
-              songLimit === null
-            }
-            ariaLabel="Gather Songs Button"
-          >
-            Gather your songs...
-          </Button>
-          <br /> */}
-
           <br />
           <TextField
             ariaLabel="Choose playlist name input"
@@ -529,6 +484,21 @@ function Filters() {
           >
             Add Song's to Playlist
           </Button>
+        </View>
+        <View>
+          <Text
+            variation="primary"
+            as="p"
+            color="#188754"
+            lineHeight="1.2rem"
+            fontWeight={400}
+            fontSize="0.65rem"
+            fontStyle="normal"
+            textDecoration="none"
+            ariaLabel="Songs may repeat warning"
+          >
+            Songs may repeat based on users library size.
+          </Text>
         </View>
       </Flex>
     </div>

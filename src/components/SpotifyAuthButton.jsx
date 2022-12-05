@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Button, Flex } from '@aws-amplify/ui-react'
+import { Button, Flex } from "@aws-amplify/ui-react";
 
 const CLIENT_ID = "1afe16f7b5c44f1ab21bc53d0af990fb";
 const SPOTIFY_AUTHORIZE_ENDPOINT = "https://accounts.spotify.com/authorize";
@@ -41,26 +41,25 @@ function Header(props) {
     window.location = `${SPOTIFY_AUTHORIZE_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${SCOPES_COMBINED}&response_type=token&show_dialog=true`;
   };
   return (
-    
     <Flex
-    direction="column"
-    justifyContent="center"
-    alignItems="center"
-    alignContent="center"
-    wrap="nowrap"
-    gap="1rem"
-  >
-    <br />
-    <Button
-      isFullWidth={false}
-      variation="primary"
-      loadingText=""
-      onClick={handleLogin}
-      ariaLabel="Login Button"
+      direction="column"
+      justifyContent="center"
+      alignItems="center"
+      alignContent="center"
+      wrap="nowrap"
+      gap="1rem"
     >
-      <i className="fab fa-spotify" /> Login with Spotify
-    </Button>
-    <br />
+      <br />
+      <Button
+        isFullWidth={false}
+        variation="primary"
+        loadingText=""
+        onClick={handleLogin}
+        ariaLabel="Login Button"
+      >
+        <i className="fab fa-spotify" /> Login with Spotify
+      </Button>
+      <br />
     </Flex>
   );
 }
