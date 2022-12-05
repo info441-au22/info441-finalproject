@@ -1,16 +1,31 @@
-import './App.css';
+import React from 'react'; //import React Component
+import Filters from './components/Filters.jsx'
+import Header from './components/SpotifyAuthButton.jsx';
+import Navbar from './components/Navbar.jsx'
+
+import './styles.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import SpotifyAuthButton from './components/SpotifyAuthButton';
-import Filters from './components/Filters';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <SpotifyAuthButton/>
-        <Filters/>
+    <>
+      <header>
+        <Navbar />
       </header>
-    </div>
+
+      <body>
+        <Header />
+        <Filters />
+        {/* <Routes>
+          <Route path='/home' element={<Header />} />
+          <Route path='/home' element={<Filters />} />
+        </Routes> */}
+      </body>
+
+      <footer>
+
+      </footer>
+    </>
   );
 }
 

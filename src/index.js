@@ -1,14 +1,68 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
+import './styles.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { ThemeProvider, Theme } from '@aws-amplify/ui-react';
+const theme = {
+  name: 'my-theme',
+  tokens: {
+    colors: {
+      font: {
+        primary: { value: '#188754' },
+        // ...
+      },
+    },
+    components: {
+      button: {
+        // this will affect the font weight of all button variants
+        fontWeight: { value: '{fontWeights.regular}' },
+        // style the primary variation
+        primary: {
+          backgroundColor: { value: '#188754' },
+          _hover: {
+            backgroundColor: { value: '{colors.blue.80}' },
+          },
+          _focus: {
+            backgroundColor: { value: '#167347' },
+          },
+        },
+      },
+      tabs: {
+        borderColor: { value: '{colors.neutral.20}' },
+        item: {
+          color: { value: '#188754' },
+          fontSize: { value: '{fontSizes.xl}' },
+          fontWeight: { value: '{fontWeights.bold}' },
+          _hover: {
+            color: { value: '{colors.black.10}' },
+          },
+          _focus: {
+            color: { value: '#167347' },
+          },
+          _active: {
+            color: { value: '#188754' },
+            borderColor: { value: '#167347' },
+            backgroundColor: { value: '{colors.green.10}' },
+          },
+          _disabled: {
+            color: { value: 'gray' },
+            backgroundColor: { value: 'transparent' },
+          },
+        },
+      },
+    },
+  }
+};
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+  <ThemeProvider theme={theme}>
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  </ThemeProvider>
+
 );
 
 // If you want to start measuring performance in your app, pass a function

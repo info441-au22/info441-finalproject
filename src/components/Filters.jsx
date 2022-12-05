@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Dropdown } from "react-bootstrap";
+import { TextField, Flex, View } from '@aws-amplify/ui-react';
 
 const PLAYLIST_ENDPOINT = "https://api.spotify.com/v1/me/playlists?limit=50";
 const USER_ID_ENDPOINT = "https://api.spotify.com/v1/me";
@@ -41,30 +42,30 @@ function Filters() {
   const years = [2019, 2020, 2021, 2022]
 
   const date_constants = new Map();
-  for(let i = 0; i < years.length; i++) {
+  for (let i = 0; i < years.length; i++) {
     date_constants.set(years[i], {
       "Winter": {
-        "start": years[i]+ "-12-21T00:00:00Z",
-        "end": years[i + 1]+ "-03-19T00:00:00Z"
+        "start": years[i] + "-12-21T00:00:00Z",
+        "end": years[i + 1] + "-03-19T00:00:00Z"
       },
       "Spring": {
-        "start": years[i]+ "-03-20T00:00:00Z",
-        "end": years[i]+ "-06-20T00:00:00Z"
+        "start": years[i] + "-03-20T00:00:00Z",
+        "end": years[i] + "-06-20T00:00:00Z"
       },
       "Summer": {
-        "start": years[i]+ "-06-21T00:00:00Z",
-        "end": years[i]+ "-09-21T00:00:00Z"
+        "start": years[i] + "-06-21T00:00:00Z",
+        "end": years[i] + "-09-21T00:00:00Z"
       },
       "Fall": {
-        "start": years[i]+ "-09-22T00:00:00Z",
-        "end": years[i]+ "-12-20T00:00:00Z"
+        "start": years[i] + "-09-22T00:00:00Z",
+        "end": years[i] + "-12-20T00:00:00Z"
       },
     })
   }
 
   const dropDownOptionsComponent = years.map((year) => {
-    return(
-      <Dropdown.Item onClick={() => {setYear(year);handleSelectYear(true);}}>{year}</Dropdown.Item>
+    return (
+      <Dropdown.Item onClick={() => { setYear(year); handleSelectYear(true); }}>{year}</Dropdown.Item>
     )
   })
 
@@ -99,7 +100,7 @@ function Filters() {
         console.log("server side error in handleGetPlaylists: " + error);
       });
   };
-  
+
   // handleGetPlaylist is getting the songs from each playlist that is passed through
   const handleGetPlaylistDetails = (playlistId) => {
     axios
@@ -113,31 +114,31 @@ function Filters() {
         function withinTimeframe(song) {
           const date_added = new Date(song.added_at);
           return Date.parse(date_added) > Date.parse(date_constants.get(year)[season].start) &&
-          Date.parse(date_added) < Date.parse(date_constants.get(year)[season].end);
+            Date.parse(date_added) < Date.parse(date_constants.get(year)[season].end);
         }
         let songs_time_frame = songs.filter((song) => withinTimeframe(song));
         let random_songs_arr = [];
         let counter = 0;
-        if(songs_time_frame.length !== 0) {
+        if (songs_time_frame.length !== 0) {
           songs_time_frame.forEach((song) => {
             let random_boolean = (Math.random() < 0.42);
-            if(random_boolean === true) {
+            if (random_boolean === true) {
               random_songs_arr.push(song);
               counter++;
               setRandomSongsLength(counter)
             }
           })
-        } else if(songs_time_frame.length === 0 && counter === 0) {
-          
-        } else if(songs_time_frame.length === 0 && counter !== 0) {
+        } else if (songs_time_frame.length === 0 && counter === 0) {
+
+        } else if (songs_time_frame.length === 0 && counter !== 0) {
 
         } else {
           setRandomSongsLength(0);
         }
 
-        let playlist_random_uri = []  
+        let playlist_random_uri = []
         for (let i = 0; i < songLimit; i++) {
-          playlist_random_uri.push((random_songs_arr[i].track.uri).toString());            
+          playlist_random_uri.push((random_songs_arr[i].track.uri).toString());
         }
         playlistURI = playlist_random_uri;
         // 	https://api.spotify.com/v1/playlists/{playlist_id}/tracks
@@ -229,79 +230,101 @@ function Filters() {
       });
   };
   return (
-    <section>
-      
-      <Dropdown>
-        <Dropdown.Toggle variant="success" id="season-dropdown">
-          Season
-        </Dropdown.Toggle>
+    <div>
+      <Flex
+        direction="column"
+        justifyContent="center"
+        alignItems="center"
+        alignContent="center"
+        wrap="nowrap"
+        gap="1rem"
+      >
+        <View>
+          <Dropdown>
+            <Dropdown.Toggle variant="success" id="season-dropdown">
+              Season
+            </Dropdown.Toggle>
 
-        <Dropdown.Menu>
-          <Dropdown.Item onClick={() => {setSeason("Winter");handleSelectSeason(true);}}>
-            Winter
-          </Dropdown.Item>
-          <Dropdown.Item onClick={() => {setSeason("Spring");handleSelectSeason(true);}}>
-            Spring
-          </Dropdown.Item>
-          <Dropdown.Item onClick={() => {setSeason("Summer");handleSelectSeason(true);}}>
-            Summer
-          </Dropdown.Item>
-          <Dropdown.Item onClick={() => {setSeason("Fall");handleSelectSeason(true);}}>Fall</Dropdown.Item>
-        </Dropdown.Menu>
-      </Dropdown>
-      <Dropdown>
-        <Dropdown.Toggle variant="success" id="season-dropdown">
-          Year
-        </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Item onClick={() => { setSeason("Winter"); handleSelectSeason(true); }}>
+                Winter
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => { setSeason("Spring"); handleSelectSeason(true); }}>
+                Spring
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => { setSeason("Summer"); handleSelectSeason(true); }}>
+                Summer
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => { setSeason("Fall"); handleSelectSeason(true); }}>Fall</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        </View>
+        <View>
+          <Dropdown>
 
-        <Dropdown.Menu>
-          {dropDownOptionsComponent}
-        </Dropdown.Menu>
-      </Dropdown>
-      <label htmlFor="songLimit">Number of Songs in the Playlist: </label>
-      <input type="text" id="songLimit" name="songLimit" onChange={handleSongLimit} />
-      <br />
-      <p>Maximum number of songs you can add is {randomSongsLength}</p>
-      <br />
-      <button
-        onClick={() => {
-          handleGatherSongs(false);
-          handleGetPlaylists();
-          handleGetUserId();
-          handleFilterPlaylists();
-          playlistURI = [];
-          handleGatherSongs(false);
-          alert("We gathered your songs!")
-        }}
-        disabled={!(selectSeason && selectYear)}
-      >
-        Gather your songs...
-      </button>
-      <br />
-      <label htmlFor="playlistName">Playlist Name: </label>
-      <input type="text" id="playlistName" name="playlistName" onChange={handlePlaylistName} />
-      <button
-        onClick={() => {
-          handleCreatePlaylist();
-          alert("Playlist created!")
-          console.log("Playlist URI = ", playlistURI)    
-        }}
-        disabled={gatherSongs}
-      >
-        Create Playlist
-      </button>
-      <br />
-      <button
-        onClick={() => {
-          handleAddSongsToPlaylist();
-          playlistURI = [];
-          //alert("Songs were added to the playlist!")        
-        }}
-        disabled={gatherSongs}
-      >
-        Add song's to the Playlist
-      </button>
-    </section>
+            <Dropdown.Toggle variant="success" id="season-dropdown">
+              Year
+            </Dropdown.Toggle>
+
+            <Dropdown.Menu>
+              {dropDownOptionsComponent}
+            </Dropdown.Menu>
+          </Dropdown>
+        </View>
+        {/* <label htmlFor="songLimit">Number of Songs in the Playlist: </label> */}
+        <View>
+          <TextField type="text" id="songLimit" name="songLimit" label="Number of Songs in the Playlist:" onChange={handleSongLimit} />
+          <p>Maximum number of songs you can add is {randomSongsLength}</p>
+        </View>
+
+        
+
+        <View>
+          <button
+            onClick={() => {
+              handleGatherSongs(false);
+              handleGetPlaylists();
+              handleGetUserId();
+              handleFilterPlaylists();
+              playlistURI = [];
+              handleGatherSongs(false);
+              alert("We gathered your songs!")
+            }}
+            disabled={!(selectSeason && selectYear)}
+          >
+            Gather your songs...
+          </button>
+        </View>
+
+        <View>
+          <label htmlFor="playlistName">Playlist Name: </label>
+          <input type="text" id="playlistName" name="playlistName" onChange={handlePlaylistName} />
+          <button
+            onClick={() => {
+              handleCreatePlaylist();
+              alert("Playlist created!")
+              console.log("Playlist URI = ", playlistURI)
+            }}
+            disabled={gatherSongs}
+          >
+            Create Playlist
+          </button>
+        </View>
+
+        <View>
+          <button
+            onClick={() => {
+              handleAddSongsToPlaylist();
+              playlistURI = [];
+              //alert("Songs were added to the playlist!")        
+            }}
+            disabled={gatherSongs}
+          >
+            Add song's to the Playlist
+          </button>
+        </View>
+      </Flex>
+    </div>
   );
 }
 
