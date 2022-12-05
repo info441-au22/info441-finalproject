@@ -25,7 +25,7 @@ const getReturnedParamsFromSpotifyAuth = (hash) => {
   return paramsSplitUp;
 };
 
-function Header() {
+function Header(props) {
   useEffect(() => {
     if (window.location.hash) {
       const { access_token, expires_in, token_type } =
