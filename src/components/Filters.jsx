@@ -51,24 +51,29 @@ function Filters() {
   const handleSongLimit = (e) => {
     setSongLimit(escapeHTML(e.target.value));
     // if theres more available random songs then is the limit set by the user we can run the handlers
-    if (escapeHTML(e.target.value) > 100 || songLimit > 100){
-      setSongLimit(100); }
-      else if (escapeHTML(e.target.value) === 0) {
-        setSongLimit(1);
-      } else if (randomSongsLength > songLimit && randomSongsLength > 0 && songLimit < 100) {
+    if (escapeHTML(e.target.value) > 100 || songLimit > 100) {
+      setSongLimit(100);
+      handleGetPlaylists();
+      handleGetUserId();
+    } else if (escapeHTML(e.target.value) === 0) {
+      setSongLimit(1);
+    } else if (
+      randomSongsLength > songLimit &&
+      randomSongsLength > 0 &&
+      songLimit < 100
+    ) {
       // if user goes over limit of random songs, set song limit back to max number of random songs
       setSongLimit(escapeHTML(e.target.value));
-      // handleGetPlaylists();
-      // handleGetUserId();
-    } 
-     else if (!escapeHTML(e.target.value)) {
+      handleGetPlaylists();
+      handleGetUserId();
+    } else if (!escapeHTML(e.target.value)) {
       // for when user erases # of songs completely, set to 0 instead of empty ""
       setSongLimit(0);
     } else {
       // for when user modifies input, show max # of songs one can add and what current number of songs is set to for user
       setSongLimit(escapeHTML(e.target.value));
-      // handleGetPlaylists();
-      // handleGetUserId();
+      handleGetPlaylists();
+      handleGetUserId();
     }
   };
 
@@ -224,7 +229,7 @@ function Filters() {
         const splitURIsInString = stringOfArrays.split(",");
         countURIsFromArray = splitURIsInString.length;
         setRandomSongsLength(countURIsFromArray);
-      // go to create playlist handler for rest of code 
+        // go to create playlist handler for rest of code
         setPlaylistURIs(splitURIsInString);
         console.log("string arrays: " + splitURIsInString);
 
@@ -259,15 +264,18 @@ function Filters() {
 
   const handleAddSongsToPlaylist = () => {
     let newPlaylistURIs = [];
-     if (songLimit > 100) {
+    if (songLimit > 100) {
       for (let i = 0; i < songLimit; i++) {
         newPlaylistURIs.push(playlistURIs[i]);
       }
       setSongLimit(100);
       setPlaylistURIs(newPlaylistURIs);
-    } 
-    else if (randomSongsLength > 100) {
-      for (let i = randomSongsLength-1; i > randomSongsLength - songLimit - 1; i--) {
+    } else if (randomSongsLength > 100) {
+      for (
+        let i = randomSongsLength - 1;
+        i > randomSongsLength - songLimit - 1;
+        i--
+      ) {
         newPlaylistURIs.push(playlistURIs[i]);
       }
       setSongLimit(songLimit);
@@ -449,10 +457,13 @@ function Filters() {
               width="30vw"
               ariaLabel="Maximum number of songs dynamic field"
             >
-              Number of songs is set to {songLimit}. Number of random songs processed is {randomSongsLength}. Max number of songs that can be added at one time is 100.
+              Number of songs is set to {songLimit}. Number of random songs
+              processed is {randomSongsLength}. Max number of songs that can be
+              added at one time is 100.
             </Text>
           )}
-          <br />
+
+          {/* <br />
           <Button
             onClick={() => {
               handleGatherSongs(false);
@@ -471,7 +482,8 @@ function Filters() {
           >
             Gather your songs...
           </Button>
-          <br />
+          <br /> */}
+
           <br />
           <TextField
             ariaLabel="Choose playlist name input"
