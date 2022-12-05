@@ -1,13 +1,16 @@
-import { Tabs, TabItem, Flex, View, Link } from '@aws-amplify/ui-react'
+import { Tabs, TabItem, Flex, View, Link, Image } from '@aws-amplify/ui-react'
 import '@aws-amplify/ui-react/styles.css';
 
 export function Navbar() {
   return (
-    <Tabs
-      currentIndex="0"
-      justifyContent="center">
-      <TabItem title="Home" />
-    </Tabs>
+    <>
+      <Tabs
+        currentIndex="0"
+        justifyContent="center">
+        <TabItem title="Home"
+        />
+      </Tabs>
+    </>
   )
 }
 
@@ -22,7 +25,7 @@ export function PageFooter() {
       gap="10rem"
     >
       <View
-        height="3rem"
+        height="2rem"
       >
         <Link
           href=""
@@ -32,17 +35,20 @@ export function PageFooter() {
         </Link>
       </View>
       <View
-        height="3rem"
+        height="4rem"
       >
-        <Link
-          href=""
-          color="#188754"
-        >
-          FAQ
-        </Link>
+        <Image
+              alt="Spotify Capsule Logo"
+              src="../favicon.ico"
+              // objectFit="initial"
+              backgroundColor="initial"
+              height="100%"
+              width="100%"
+              opacity="100%"
+            /> 
       </View>
       <View
-        height="3rem"
+        height="2rem"
       >
         <Link
           href=""
@@ -51,6 +57,7 @@ export function PageFooter() {
           Contact Us
         </Link>
       </View>
+  
     </Flex>
   )
 }
