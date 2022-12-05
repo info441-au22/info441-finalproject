@@ -54,10 +54,9 @@ function Header() {
     <Button
       isFullWidth={false}
       variation="primary"
-      size="large"
       loadingText=""
       onClick={handleLogin}
-      ariaLabel=""
+      ariaLabel="Login Button"
     >
       <i className="fab fa-spotify" /> Login with Spotify
     </Button>

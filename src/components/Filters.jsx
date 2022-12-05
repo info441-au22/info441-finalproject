@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Dropdown } from "react-bootstrap";
-import { TextField, Flex, View } from '@aws-amplify/ui-react';
+import { TextField, Flex, View, Button, Text } from '@aws-amplify/ui-react';
 
 const PLAYLIST_ENDPOINT = "https://api.spotify.com/v1/me/playlists?limit=50";
 const USER_ID_ENDPOINT = "https://api.spotify.com/v1/me";
@@ -271,16 +271,25 @@ function Filters() {
             </Dropdown.Menu>
           </Dropdown>
         </View>
-        {/* <label htmlFor="songLimit">Number of Songs in the Playlist: </label> */}
         <View>
-          <TextField type="text" id="songLimit" name="songLimit" label="Number of Songs in the Playlist:" onChange={handleSongLimit} />
-          <p>Maximum number of songs you can add is {randomSongsLength}</p>
-        </View>
+          <br />
+          <TextField ariaLabel="# of songs to add to playlist input" type="text" id="songLimit" name="songLimit" variation="quiet" placeholder="# of Songs to add to Playlist" onChange={handleSongLimit} />
+          <Text
+            variation="primary"
+            as="p"
+            color="#188754"
+            lineHeight="2rem"
+            fontWeight={400}
+            fontSize="0.75rem"
+            fontStyle="normal"
+            textDecoration="none"
+            width="30vw"
+            ariaLabel="Maximum number of songs dynamic field"
+          >
+            Maximum number of songs you can add is {randomSongsLength}
+          </Text>
 
-        
-
-        <View>
-          <button
+          <Button
             onClick={() => {
               handleGatherSongs(false);
               handleGetPlaylists();
@@ -291,37 +300,43 @@ function Filters() {
               alert("We gathered your songs!")
             }}
             disabled={!(selectSeason && selectYear)}
+            ariaLabel="Gather Songs Button"
           >
             Gather your songs...
-          </button>
-        </View>
-
-        <View>
-          <label htmlFor="playlistName">Playlist Name: </label>
-          <input type="text" id="playlistName" name="playlistName" onChange={handlePlaylistName} />
-          <button
+          </Button>
+            <br />
+            <br />
+          <TextField ariaLabel="Choose playlist name input" type="text" id="playlistName" name="playlistName" variation="quiet" placeholder="Choose a playlist name" onChange={handlePlaylistName} />
+          <br />
+          <Button
             onClick={() => {
               handleCreatePlaylist();
               alert("Playlist created!")
               console.log("Playlist URI = ", playlistURI)
             }}
             disabled={gatherSongs}
+            ariaLabel="Create Playlist Button"
+            size="small"
           >
             Create Playlist
-          </button>
+          </Button>
         </View>
 
         <View>
-          <button
+          <br />
+          <Button
             onClick={() => {
               handleAddSongsToPlaylist();
               playlistURI = [];
-              //alert("Songs were added to the playlist!")        
+              alert("Songs were added to the playlist!")
             }}
             disabled={gatherSongs}
+            variation="primary"
+            size="large"
+            ariaLabel="Add song's to playlist button"
           >
-            Add song's to the Playlist
-          </button>
+            Add song's to Playlist
+          </Button>
         </View>
       </Flex>
     </div>
