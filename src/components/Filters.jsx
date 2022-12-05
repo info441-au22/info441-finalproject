@@ -10,16 +10,10 @@ const GET_PLAYLIST_ITEMS_ENDPOINT =
 const ADD_SONGS_TO_PLAYLIST = "https://api.spotify.com/v1/playlists/";
 const CREATE_CUSTOM_PLAYLIST = "https://api.spotify.com/v1/users/";
 
-const SPRING = ["03-20", "06-20"];
-const SUMMER = ["06-21", "09-21"];
-const FALL = ["09-22", "12-20"];
-const WINTER = ["12-21", "03-19"];
-
 let playlistURI = [];
 
 function Filters() {
   const [token, setToken] = useState("");
-  const [validSongs, setValidSongs] = useState("");
   const [userId, setUserId] = useState({});
   const [year, setYear] = useState({});
   const [season, setSeason] = useState({});
@@ -39,7 +33,8 @@ function Filters() {
     setSongLimit(e.target.value);
   }
 
-  const years = [2019, 2020, 2021, 2022]
+  const years = [2019, 2020, 2021, 2022];
+  const seasons = ["Winter", "Spring", "Summer", "Fall"];
 
   const date_constants = new Map();
   for (let i = 0; i < years.length; i++) {
@@ -69,6 +64,13 @@ function Filters() {
     )
   })
 
+  const dropDownSeasonComponent = seasons.map((season) => {
+    return(
+      <Dropdown.Item onClick={() => { setSeason({season}); handleSelectSeason(true); }}>
+        {season}
+      </Dropdown.Item>
+    )
+  })
   // Grab the user's spotify access token from local storage (this is after you press the log in button)
   useEffect(() => {
     if (localStorage.getItem("accessToken")) {
@@ -244,34 +246,37 @@ function Filters() {
             <Dropdown.Toggle variant="success" id="season-dropdown">
               Season
             </Dropdown.Toggle>
-
             <Dropdown.Menu>
-              <Dropdown.Item onClick={() => { setSeason("Winter"); handleSelectSeason(true); }}>
-                Winter
-              </Dropdown.Item>
-              <Dropdown.Item onClick={() => { setSeason("Spring"); handleSelectSeason(true); }}>
-                Spring
-              </Dropdown.Item>
-              <Dropdown.Item onClick={() => { setSeason("Summer"); handleSelectSeason(true); }}>
-                Summer
-              </Dropdown.Item>
-              <Dropdown.Item onClick={() => { setSeason("Fall"); handleSelectSeason(true); }}>Fall</Dropdown.Item>
+              {dropDownSeasonComponent}
             </Dropdown.Menu>
           </Dropdown>
         </View>
         <View>
           <Dropdown>
-
             <Dropdown.Toggle variant="success" id="season-dropdown">
               Year
             </Dropdown.Toggle>
-
             <Dropdown.Menu>
               {dropDownOptionsComponent}
             </Dropdown.Menu>
           </Dropdown>
         </View>
         <View>
+        <Button
+            onClick={() => {
+              handleGatherSongs(false);
+              handleGetPlaylists();
+              handleGetUserId();
+              handleFilterPlaylists();
+              playlistURI = [];
+              handleGatherSongs(false);
+              alert("We gathered your songs!")
+            }}
+            disabled={!(selectSeason && selectYear)}
+            ariaLabel="Gather Songs Button"
+          >
+            Gather your songs...
+          </Button>
           <br />
           <TextField ariaLabel="# of songs to add to playlist input" type="text" id="songLimit" name="songLimit" variation="quiet" placeholder="# of Songs to add to Playlist" onChange={handleSongLimit} />
           <Text
@@ -288,23 +293,6 @@ function Filters() {
           >
             Maximum number of songs you can add is {randomSongsLength}
           </Text>
-
-          <Button
-            onClick={() => {
-              handleGatherSongs(false);
-              handleGetPlaylists();
-              handleGetUserId();
-              handleFilterPlaylists();
-              playlistURI = [];
-              handleGatherSongs(false);
-              alert("We gathered your songs!")
-            }}
-            disabled={!(selectSeason && selectYear)}
-            ariaLabel="Gather Songs Button"
-          >
-            Gather your songs...
-          </Button>
-            <br />
             <br />
           <TextField ariaLabel="Choose playlist name input" type="text" id="playlistName" name="playlistName" variation="quiet" placeholder="Choose a playlist name" onChange={handlePlaylistName} />
           <br />
