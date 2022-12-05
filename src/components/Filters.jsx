@@ -8,6 +8,7 @@ const GET_PLAYLIST_ITEMS_ENDPOINT =
   "https://api.spotify.com/v1/playlists/2qFDu3xwuUBPaVs7gsD9jh/tracks"; //(not used yet)
 const ADD_SONGS_TO_PLAYLIST = "https://api.spotify.com/v1/playlists/";
 const CREATE_CUSTOM_PLAYLIST = "https://api.spotify.com/v1/users/";
+const GET_SAVED_TRACKS = "https://api.spotify.com/v1/me/tracks?offset=100&limit=50";
 
 const SPRING = ["03-20", "06-20"];
 const SUMMER = ["06-21", "09-21"];
@@ -29,6 +30,8 @@ function Filters() {
   const [songLimit, setSongLimit] = useState(15);
   const [gatherSongs, handleGatherSongs] = useState(false);
   const [randomSongsLength, setRandomSongsLength] = useState(0);
+  const [addItemstoList, setItemstoList] = useState(false);
+  
 
   const handlePlaylistName = (e) => {
     setPlaylistName(e.target.value);
@@ -64,7 +67,10 @@ function Filters() {
 
   const dropDownOptionsComponent = years.map((year) => {
     return(
-      <Dropdown.Item onClick={() => {setYear(year);handleSelectYear(true);}}>{year}</Dropdown.Item>
+      <Dropdown.Item onClick={() => {setYear(year);handleSelectYear(true);setItemstoList(false);handleGetUserId();
+          handleGetPlaylists();
+          handleFilterPlaylists();
+          }}>{year}</Dropdown.Item>
     )
   })
 
@@ -79,6 +85,57 @@ function Filters() {
   useEffect(() => {
     console.log(userId);
   }, []);
+
+  const handleGetTracks = () => {
+    axios.get(GET_SAVED_TRACKS, {
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    })
+    .then((response) => {
+      console.log(response.data['items']);
+      
+        let songs = response.data.items;
+        console.log(songs)
+        function withinTimeframe(song) {
+          const date_added = new Date(song.added_at);
+          //console.log(date_added)
+          return (Date.parse(date_added) > Date.parse(date_constants.get(year)[season].start)) &&
+          (Date.parse(date_added) < Date.parse(date_constants.get(year)[season].end));
+        }
+
+        let songs_time_frame = songs.filter((song) => withinTimeframe(song));
+        let random_songs_arr = [];
+        let counter = 0;
+        console.log(songs_time_frame);
+        if(songs_time_frame.length !== 0) {
+          songs_time_frame.forEach((song) => {
+            let random_boolean = (Math.random() < 0.42);
+            if(random_boolean === true) {
+             //console.log("song:",song)
+              random_songs_arr.push(song);
+              counter++;
+              //setRandomSongsLength(counter)
+              //setRandomSongsLength(songs_time_frame.length)
+            }
+          })
+        } 
+        let playlist_random_uri = [];
+
+      for (let i = 0; i < songLimit; i++) {
+        //setRandomSongsLength(songLimit)
+        console.log("random songs arr: "+ random_songs_arr)
+        playlist_random_uri.push((random_songs_arr[i].track.uri).toString());            
+      }
+      playlistURI = playlist_random_uri;
+      
+    
+
+    })
+    .catch((error) => {
+      console.log(error);
+    })
+  }
 
   // this is returning a list of 50 of the users recent playlists
   const handleGetPlaylists = () => {
@@ -110,33 +167,45 @@ function Filters() {
       })
       .then((response) => {
         let songs = response.data.items;
+        console.log(songs);
         function withinTimeframe(song) {
           const date_added = new Date(song.added_at);
-          return Date.parse(date_added) > Date.parse(date_constants.get(year)[season].start) &&
-          Date.parse(date_added) < Date.parse(date_constants.get(year)[season].end);
+          console.log(Date.parse(date_added)  ," added date")
+          console.log(Date.parse(date_constants.get(year)[season].start) ," selected start")
+          console.log(Date.parse(date_constants.get(year)[season].end) ," selected end")
+          return (Date.parse(date_added) > Date.parse(date_constants.get(year)[season].start)) &&
+          (Date.parse(date_added) < Date.parse(date_constants.get(year)[season].end));
         }
         let songs_time_frame = songs.filter((song) => withinTimeframe(song));
         let random_songs_arr = [];
         let counter = 0;
+        console.log(songs_time_frame.length);
         if(songs_time_frame.length !== 0) {
           songs_time_frame.forEach((song) => {
             let random_boolean = (Math.random() < 0.42);
             if(random_boolean === true) {
+             //console.log("song:",song)
               random_songs_arr.push(song);
               counter++;
-              setRandomSongsLength(counter)
+              //setRandomSongsLength(counter)
+              //setRandomSongsLength(songs_time_frame.length)
             }
           })
-        } else if(songs_time_frame.length === 0 && counter === 0) {
+        } 
           
-        } else if(songs_time_frame.length === 0 && counter !== 0) {
+        else if(songs_time_frame.length === 0 && counter !== 0) {
 
         } else {
           setRandomSongsLength(0);
         }
 
-        let playlist_random_uri = []  
+        let playlist_random_uri = [];
+        console.log("random songs arr: "+ random_songs_arr)
+        setRandomSongsLength(random_songs_arr.length)  
+       
         for (let i = 0; i < songLimit; i++) {
+          //setRandomSongsLength(songLimit)
+          console.log("random songs arr: "+ random_songs_arr)
           playlist_random_uri.push((random_songs_arr[i].track.uri).toString());            
         }
         playlistURI = playlist_random_uri;
@@ -228,25 +297,50 @@ function Filters() {
         console.log(error);
       });
   };
+
+  const seasonRender =  () => {
+    if (handleSelectSeason) {
+      return <h1>wrong</h1>;
+    } else {
+      return <h1>right</h1>;
+    }
+  }
+
   return (
     <section>
-      
+
+      {/* <button onClick={handleGetTracks}>
+        Get Saved Tracks
+      </button> */}
+      {seasonRender}
       <Dropdown>
         <Dropdown.Toggle variant="success" id="season-dropdown">
           Season
         </Dropdown.Toggle>
 
         <Dropdown.Menu>
-          <Dropdown.Item onClick={() => {setSeason("Winter");handleSelectSeason(true);}}>
+          <Dropdown.Item onClick={() => {setSeason("Winter");handleSelectSeason(true);setItemstoList(false);handleGetPlaylists();
+          handleGetUserId();
+          handleFilterPlaylists();
+          }}>
             Winter
           </Dropdown.Item>
-          <Dropdown.Item onClick={() => {setSeason("Spring");handleSelectSeason(true);}}>
+          <Dropdown.Item onClick={() => {setSeason("Spring");handleSelectSeason(true);setItemstoList(false);handleGetPlaylists();
+          handleGetUserId();
+          handleFilterPlaylists();
+          }}>
             Spring
           </Dropdown.Item>
-          <Dropdown.Item onClick={() => {setSeason("Summer");handleSelectSeason(true);}}>
+          <Dropdown.Item onClick={() => {setSeason("Summer");handleSelectSeason(true);setItemstoList(false);handleGetPlaylists();
+          handleGetUserId();
+          handleFilterPlaylists();
+          }}>
             Summer
           </Dropdown.Item>
-          <Dropdown.Item onClick={() => {setSeason("Fall");handleSelectSeason(true);}}>Fall</Dropdown.Item>
+          <Dropdown.Item onClick={() => {setSeason("Fall");handleSelectSeason(true);setItemstoList(false);handleGetPlaylists();
+          handleGetUserId();
+          handleFilterPlaylists();
+          }}>Fall</Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>
       <Dropdown>
@@ -266,12 +360,13 @@ function Filters() {
       <button
         onClick={() => {
           handleGatherSongs(false);
-          handleGetPlaylists();
-          handleGetUserId();
-          handleFilterPlaylists();
-          playlistURI = [];
+          // handleGetPlaylists();
+          // handleGetUserId();
+          // handleFilterPlaylists();
+          // playlistURI = [];
           handleGatherSongs(false);
           alert("We gathered your songs!")
+          setItemstoList(false)  
         }}
         disabled={!(selectSeason && selectYear)}
       >
@@ -284,7 +379,8 @@ function Filters() {
         onClick={() => {
           handleCreatePlaylist();
           alert("Playlist created!")
-          console.log("Playlist URI = ", playlistURI)    
+          console.log("Playlist URI = ", playlistURI) 
+          
         }}
         disabled={gatherSongs}
       >
@@ -295,9 +391,10 @@ function Filters() {
         onClick={() => {
           handleAddSongsToPlaylist();
           playlistURI = [];
+          setItemstoList(true)
           //alert("Songs were added to the playlist!")        
         }}
-        disabled={gatherSongs}
+        disabled={gatherSongs || addItemstoList}
       >
         Add song's to the Playlist
       </button>
@@ -306,3 +403,13 @@ function Filters() {
 }
 
 export default Filters;
+
+
+// setRandomSongs should be the length of random_songs_arr ?
+// whatever you choose after clicking "gather your songs", it will not but the specified amount of songs
+// disable "add songs to playlist" button until they either change year, season or gather songs again
+// "number of songs playlist" input? needs to be disabled until gather or remove max num of song cause misleading
+// i think you need to set "number of songs in playlist" field when clicking on "playlist name" other wise you will get empty uris
+// so we should disable number of songs in playlist button until user clicks on gather songs
+// after user 
+
