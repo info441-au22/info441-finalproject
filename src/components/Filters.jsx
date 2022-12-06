@@ -52,10 +52,10 @@ function Filters() {
     // if theres more available random songs then is the limit set by the user we can run the handlers
     if (escapeHTML(e.target.value) > 100 || songLimit > 100) {
       setSongLimit(100);
-      handleGetPlaylists();
-      handleGetUserId();
-    } else if (escapeHTML(e.target.value) === 0) {
-      setSongLimit(1);
+      // handleGetPlaylists();
+      // handleGetUserId();
+    } else if (escapeHTML(e.target.value) == 0) {
+      setSongLimit(0);
     } else if (
       randomSongsLength > songLimit &&
       randomSongsLength > 0 &&
@@ -63,16 +63,16 @@ function Filters() {
     ) {
       // if user goes over limit of random songs, set song limit back to max number of random songs
       setSongLimit(escapeHTML(e.target.value));
-      handleGetPlaylists();
-      handleGetUserId();
+      // handleGetPlaylists();
+      // handleGetUserId();
     } else if (!escapeHTML(e.target.value)) {
       // for when user erases # of songs completely, set to 0 instead of empty ""
       setSongLimit(0);
     } else {
       // for when user modifies input, show max # of songs one can add and what current number of songs is set to for user
       setSongLimit(escapeHTML(e.target.value));
-      handleGetPlaylists();
-      handleGetUserId();
+      // handleGetPlaylists();
+      // handleGetUserId();
     }
   };
 
@@ -180,7 +180,7 @@ function Filters() {
         }
         const songs_time_frame = songs.filter((song) => withinTimeframe(song));
         const shuffled_time_frame = [...songs_time_frame].sort(
-          () => 0.045 - Math.random()
+          () => 0.025 - Math.random()
         );
 
         let random_songs_arr = [];
@@ -335,18 +335,6 @@ function Filters() {
         gap="1rem"
       >
         <View>
-          <Text
-            variation="primary"
-            as="p"
-            color="#188754"
-            lineHeight="1.2rem"
-            fontWeight={400}
-            fontSize="0.75rem"
-            fontStyle="normal"
-            textDecoration="none"
-            width="30vw"
-            ariaLabel="Maximum number of songs dynamic field"
-          ></Text>
           <Dropdown>
             <Dropdown.Toggle variant="success" id="season-dropdown">
               SEASON
@@ -361,6 +349,7 @@ function Filters() {
             <Dropdown.Menu>{dropDownOptionsComponent}</Dropdown.Menu>
           </Dropdown>
           <br />
+          
           {season !== "" && year !== "" && (
             <Text
               variation="primary"
@@ -395,7 +384,7 @@ function Filters() {
           )}
 
           <TextField
-            ariaLabel="# of songs to add to playlist input"
+            ariaLabel="Number of songs to add to playlist input"
             type="number"
             id="songLimit"
             name="songLimit"
@@ -438,7 +427,26 @@ function Filters() {
               added at one time is 100.
             </Text>
           )}
-
+<br />
+          <Button
+            onClick={() => {
+              handleGatherSongs(false);
+              handleGetPlaylists();
+              handleGetUserId();
+              setPlaylistURIs("");
+              handleGatherSongs(false);
+              alert("We gathered your songs!");
+            }}
+            disabled={
+              songLimit % 1 !== 0 ||
+              !(selectSeason && selectYear) ||
+              songLimit === null
+            }
+            ariaLabel="Gather Songs Button"
+          >
+            Gather your Songs...
+          </Button>
+          <br />
           <br />
           <TextField
             ariaLabel="Choose playlist name input"
@@ -463,7 +471,7 @@ function Filters() {
             disabled={gatherSongs || playListName === ""}
             ariaLabel="Create Playlist Button"
           >
-            Create Playlist
+            Create your Playlist
           </Button>
         </View>
 
