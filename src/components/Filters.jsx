@@ -11,6 +11,7 @@ const ADD_SONGS_TO_PLAYLIST = "https://api.spotify.com/v1/playlists/";
 const CREATE_CUSTOM_PLAYLIST = "https://api.spotify.com/v1/users/";
 
 let playlistURI = [];
+let newPlaylistURIs = [];
 
 function Filters() {
   const [token, setToken] = useState("");
@@ -54,8 +55,8 @@ function Filters() {
       setSongLimit(100);
       handleGetPlaylists();
       handleGetUserId();
-    } else if (escapeHTML(e.target.value) === 0) {
-      setSongLimit(1);
+    } else if (escapeHTML(e.target.value) == 0) {
+      setSongLimit(0);
     } else if (
       randomSongsLength > songLimit &&
       randomSongsLength > 0 &&
@@ -206,7 +207,7 @@ function Filters() {
           playlist_random_uri.push(random_songs_arr[i].track.uri.toString());
         }
 
-        console.log(playlistURI); // what does this return?
+        // console.log(playlistURI); // what does this return?
         // (ex: {[[uri][uri][uri]], [[uri][uri]], [uri]}) we only get 3 when its 6 uris... lets fix this
         playlistURI.push(playlist_random_uri); //
         // take playlistURI object of arrays {[],[],[]}, and convert it into an array of string arrays [[]],[]],[]]]
@@ -221,6 +222,8 @@ function Filters() {
         let countURIsFromArray = 0;
         const splitURIsInString = stringOfArrays.split(",");
         countURIsFromArray = splitURIsInString.length;
+        console.log(countURIsFromArray)
+        console.log(splitURIsInString)
         setRandomSongsLength(countURIsFromArray);
         // go to create playlist handler for rest of code
         setPlaylistURIs(splitURIsInString);
@@ -239,13 +242,14 @@ function Filters() {
   };
 
   const handleAddSongsToPlaylist = () => {
-    let newPlaylistURIs = [];
+    
     if (songLimit > 100) {
       for (let i = 0; i < songLimit; i++) {
         newPlaylistURIs.push(playlistURIs[i]);
       }
       setSongLimit(100);
       setPlaylistURIs(newPlaylistURIs);
+      
     } else if (randomSongsLength > 100) {
       for (
         let i = randomSongsLength - 1;
@@ -474,6 +478,7 @@ function Filters() {
               handleAddSongsToPlaylist();
               console.log("Playlist URI add songs button = ", playlistURIs);
               setPlaylistURIs("");
+              let newPlaylistURIs = [];
               alert("Songs were added to the playlist!");
               // window.location.reload();
             }}
