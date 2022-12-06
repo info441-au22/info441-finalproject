@@ -11,7 +11,7 @@ const ADD_SONGS_TO_PLAYLIST = "https://api.spotify.com/v1/playlists/";
 const CREATE_CUSTOM_PLAYLIST = "https://api.spotify.com/v1/users/";
 
 let playlistURI = [];
-let newPlaylistURIs = [];
+
 
 function Filters() {
   const [token, setToken] = useState("");
@@ -55,7 +55,7 @@ function Filters() {
       setSongLimit(100);
       handleGetPlaylists();
       handleGetUserId();
-    } else if (escapeHTML(e.target.value) == 0) {
+    } else if (escapeHTML(e.target.value) === 0) {
       setSongLimit(0);
     } else if (
       randomSongsLength > songLimit &&
@@ -108,6 +108,7 @@ function Filters() {
         onClick={() => {
           setYear(year);
           handleSelectYear(true);
+          setPlaylistURIs("");     
         }}
       >
         {year}
@@ -121,6 +122,8 @@ function Filters() {
         onClick={() => {
           setSeason(season);
           handleSelectSeason(true);
+          setPlaylistURIs(""); 
+        
         }}
       >
         {season}
@@ -242,7 +245,7 @@ function Filters() {
   };
 
   const handleAddSongsToPlaylist = () => {
-    
+    let newPlaylistURIs = [];
     if (songLimit > 100) {
       for (let i = 0; i < songLimit; i++) {
         newPlaylistURIs.push(playlistURIs[i]);
@@ -478,9 +481,8 @@ function Filters() {
               handleAddSongsToPlaylist();
               console.log("Playlist URI add songs button = ", playlistURIs);
               setPlaylistURIs("");
-              let newPlaylistURIs = [];
               alert("Songs were added to the playlist!");
-              // window.location.reload();
+              window.location.reload();
             }}
             disabled={gatherSongs}
             variation="primary"
