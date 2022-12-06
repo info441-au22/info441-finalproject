@@ -12,7 +12,6 @@ const CREATE_CUSTOM_PLAYLIST = "https://api.spotify.com/v1/users/";
 
 let playlistURI = [];
 
-
 function Filters() {
   const [token, setToken] = useState("");
   const [validSongs, setValidSongs] = useState("");
@@ -27,6 +26,7 @@ function Filters() {
   const [gatherSongs, handleGatherSongs] = useState(false);
   const [randomSongsLength, setRandomSongsLength] = useState(0);
   const [playlistURIs, setPlaylistURIs] = useState("");
+  const [throwError, setThrowError] = useState(false);
 
   // from: https://stackoverflow.com/questions/40263803/native-javascript-or-es6-way-to-encode-and-decode-html-entities
   const escapeHTML = (str) =>
@@ -108,7 +108,7 @@ function Filters() {
         onClick={() => {
           setYear(year);
           handleSelectYear(true);
-          setPlaylistURIs("");     
+          setPlaylistURIs("");
         }}
       >
         {year}
@@ -122,8 +122,7 @@ function Filters() {
         onClick={() => {
           setSeason(season);
           handleSelectSeason(true);
-          setPlaylistURIs(""); 
-        
+          setPlaylistURIs("");
         }}
       >
         {season}
@@ -225,8 +224,8 @@ function Filters() {
         let countURIsFromArray = 0;
         const splitURIsInString = stringOfArrays.split(",");
         countURIsFromArray = splitURIsInString.length;
-        console.log(countURIsFromArray)
-        console.log(splitURIsInString)
+        console.log(countURIsFromArray);
+        console.log(splitURIsInString);
         setRandomSongsLength(countURIsFromArray);
         // go to create playlist handler for rest of code
         setPlaylistURIs(splitURIsInString);
@@ -252,7 +251,6 @@ function Filters() {
       }
       setSongLimit(100);
       setPlaylistURIs(newPlaylistURIs);
-      
     } else if (randomSongsLength > 100) {
       for (
         let i = randomSongsLength - 1;
@@ -289,6 +287,7 @@ function Filters() {
         console.error(
           "You don't have any songs for the selected time frame. Select a different season and/or year, then gather songs and add to the playlist again."
         );
+        setThrowError(true);
       });
   };
 
@@ -341,7 +340,53 @@ function Filters() {
         wrap="nowrap"
         gap="1rem"
       >
-        <View>
+        {throwError == true && (
+          <Flex
+            direction="column"
+            justifyContent="center"
+            alignItems="center"
+            alignContent="center"
+            wrap="nowrap"
+            gap="1rem"
+            padding="2rem"
+          >
+            <View>
+              <Text
+                variation="primary"
+                as="p"
+                color="red"
+                lineHeight="1.2rem"
+                fontWeight={400}
+                fontSize="0.75rem"
+                fontStyle="normal"
+                textDecoration="none"
+                ariaLabel="Invalid time frame or no songs"
+                textAlign="center"
+              >
+                Error: You are either rate limited or choose an invalid time
+                period/one with no songs. <br /> Choose a different time
+                period/give time for the rate limit reset. D:
+              </Text>
+            </View>
+            <Button
+              alignContent="center"
+              onClick={() => {
+                setThrowError(false);
+                window.location.reload();
+              }}
+            >
+              OK
+            </Button>
+          </Flex>
+        )}
+
+        <View
+          as="div"
+          border="1px solid var(--amplify-colors-black)"
+          borderRadius="6px"
+          boxShadow="3px 3px 5px 6px var(--amplify-colors-neutral-60)"
+          padding="1rem"
+        >
           <Text
             variation="primary"
             as="p"
@@ -354,52 +399,52 @@ function Filters() {
             width="30vw"
             ariaLabel="Maximum number of songs dynamic field"
           ></Text>
-          <Dropdown>
-            <Dropdown.Toggle variant="success" id="season-dropdown">
-              SEASON
-            </Dropdown.Toggle>
-            <Dropdown.Menu>{dropDownSeasonComponent}</Dropdown.Menu>
-          </Dropdown>
-          <br />
-          <Dropdown>
-            <Dropdown.Toggle variant="success" id="year-dropdown">
-              YEAR
-            </Dropdown.Toggle>
-            <Dropdown.Menu>{dropDownOptionsComponent}</Dropdown.Menu>
-          </Dropdown>
-          <br />
-          {season !== "" && year !== "" && (
-            <Text
-              variation="primary"
-              as="p"
-              color="#188754"
-              lineHeight="2rem"
-              fontWeight={500}
-              fontSize="1rem"
-              fontStyle="normal"
-              textDecoration="none"
-              width="30vw"
-              ariaLabel="Maximum number of songs dynamic field"
-            >
-              Your time frame is {season}, {year}.
-            </Text>
-          )}
-          {season === "" && year === "" && (
-            <Text
-              variation="primary"
-              as="p"
-              color="#000000"
-              lineHeight="2rem"
-              fontWeight={500}
-              fontSize="1rem"
-              fontStyle="normal"
-              textDecoration="none"
-              width="30vw"
-              ariaLabel="Maximum number of songs dynamic field"
-            >
-              You haven't selected the season or year.
-            </Text>
-          )}
+          <View as="div" padding="1rem">
+            <Dropdown style={{ paddingBottom: "1rem" }}>
+              <Dropdown.Toggle variant="success" id="season-dropdown">
+                SEASON
+              </Dropdown.Toggle>
+              <Dropdown.Menu>{dropDownSeasonComponent}</Dropdown.Menu>
+            </Dropdown>
+            <Dropdown style={{ paddingBottom: "1rem" }}>
+              <Dropdown.Toggle variant="success" id="year-dropdown">
+                YEAR
+              </Dropdown.Toggle>
+              <Dropdown.Menu>{dropDownOptionsComponent}</Dropdown.Menu>
+            </Dropdown>
+            {season !== "" && year !== "" && (
+              <Text
+                variation="primary"
+                as="p"
+                color="#188754"
+                lineHeight="2rem"
+                fontWeight={500}
+                fontSize="1rem"
+                fontStyle="normal"
+                textDecoration="none"
+                width="30vw"
+                ariaLabel="Maximum number of songs dynamic field"
+              >
+                Your time frame is {season}, {year}.
+              </Text>
+            )}
+            {season === "" && year === "" && (
+              <Text
+                variation="primary"
+                as="p"
+                color="#000000"
+                lineHeight="2rem"
+                fontWeight={500}
+                fontSize="1rem"
+                fontStyle="normal"
+                textDecoration="none"
+                width="30vw"
+                ariaLabel="Maximum number of songs dynamic field"
+              >
+                You haven't selected the season or year.
+              </Text>
+            )}
+          </View>
 
           <TextField
             ariaLabel="# of songs to add to playlist input"
@@ -409,6 +454,7 @@ function Filters() {
             variation="quiet"
             placeholder="# of Songs to add to Playlist"
             onChange={handleSongLimit}
+            padding="1rem"
             isRequired={true}
           />
           {songLimit % 1 !== 0 && (
@@ -422,6 +468,8 @@ function Filters() {
               fontStyle="normal"
               textDecoration="none"
               width="30vw"
+              paddingLeft="1rem"
+              paddingBottom="0.5rem"
               ariaLabel="Maximum number of songs dynamic field"
             >
               Please don't use decimal numbers.
@@ -438,6 +486,8 @@ function Filters() {
               fontStyle="normal"
               textDecoration="none"
               width="30vw"
+              paddingLeft="1rem"
+              paddingBottom="0.5rem"
               ariaLabel="Maximum number of songs dynamic field"
             >
               Number of songs is set to {songLimit}. Number of random songs
@@ -455,25 +505,22 @@ function Filters() {
             variation="quiet"
             placeholder="Choose a playlist name"
             isRequired={true}
+            padding="1rem"
             onChange={handlePlaylistName}
           />
           <br />
-          <Button
-            onClick={() => {
-              handleCreatePlaylist();
-              alert("Playlist created!");
-              console.log(
-                "Playlist URI create playlist button = ",
-                playlistURIs
-              );
-            }}
-            disabled={gatherSongs || playListName === ""}
-            ariaLabel="Create Playlist Button"
-          >
-            Create Playlist
-          </Button>
         </View>
-
+        <Button
+          onClick={() => {
+            handleCreatePlaylist();
+            alert("Playlist created!");
+            console.log("Playlist URI create playlist button = ", playlistURIs);
+          }}
+          disabled={gatherSongs || playListName === ""}
+          ariaLabel="Create Playlist Button"
+        >
+          Create Playlist
+        </Button>
         <View>
           <br />
           <Button
@@ -482,7 +529,7 @@ function Filters() {
               console.log("Playlist URI add songs button = ", playlistURIs);
               setPlaylistURIs("");
               alert("Songs were added to the playlist!");
-              window.location.reload();
+              // window.location.reload();
             }}
             disabled={gatherSongs}
             variation="primary"
