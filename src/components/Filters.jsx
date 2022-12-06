@@ -349,14 +349,14 @@ function Filters() {
           ></Text>
           <Dropdown>
             <Dropdown.Toggle variant="success" id="season-dropdown">
-              Season
+              SEASON
             </Dropdown.Toggle>
             <Dropdown.Menu>{dropDownSeasonComponent}</Dropdown.Menu>
           </Dropdown>
           <br />
           <Dropdown>
-            <Dropdown.Toggle variant="success" id="season-dropdown">
-              Year
+            <Dropdown.Toggle variant="success" id="year-dropdown">
+              YEAR
             </Dropdown.Toggle>
             <Dropdown.Menu>{dropDownOptionsComponent}</Dropdown.Menu>
           </Dropdown>
@@ -381,7 +381,7 @@ function Filters() {
             <Text
               variation="primary"
               as="p"
-              color="#188754"
+              color="#000000"
               lineHeight="2rem"
               fontWeight={500}
               fontSize="1rem"
@@ -482,7 +482,7 @@ function Filters() {
             size="large"
             ariaLabel="Add song's to playlist button"
           >
-            Add Song's to Playlist
+            ADD SONGS TO PLAYLIST
           </Button>
         </View>
         <View>
@@ -492,7 +492,7 @@ function Filters() {
             color="#188754"
             lineHeight="1.2rem"
             fontWeight={400}
-            fontSize="0.65rem"
+            fontSize="0.75rem"
             fontStyle="normal"
             textDecoration="none"
             ariaLabel="Songs may repeat warning"

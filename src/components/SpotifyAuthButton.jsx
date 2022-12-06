@@ -57,7 +57,7 @@ function Header(props) {
         onClick={handleLogin}
         ariaLabel="Login Button"
       >
-        <i className="fab fa-spotify" /> Login with Spotify
+        <i className="fab fa-spotify" /> LOGIN WITH SPOTIFY
       </Button>
       <br />
     </Flex>

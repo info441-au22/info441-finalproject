@@ -1,15 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './styles.css';
+
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { ThemeProvider, Theme } from '@aws-amplify/ui-react';
+import './styles.css'
+
 const theme = {
   name: 'my-theme',
   tokens: {
     colors: {
       font: {
-        primary: { value: '#188754' },
+        primary: { value: '#000000' },
         // ...
       },
     },
@@ -19,7 +21,7 @@ const theme = {
         fontWeight: { value: '{fontWeights.regular}' },
         // style the primary variation
         primary: {
-          backgroundColor: { value: '#188754' },
+          backgroundColor: { value: '#1ed760' },
           _hover: {
             backgroundColor: { value: '{colors.blue.80}' },
           },
@@ -31,7 +33,7 @@ const theme = {
       tabs: {
         borderColor: { value: '{colors.neutral.20}' },
         item: {
-          color: { value: '#188754' },
+          color: { value: '#000000' },
           fontSize: { value: '{fontSizes.xl}' },
           fontWeight: { value: '{fontWeights.bold}' },
           _hover: {

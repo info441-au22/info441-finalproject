@@ -7,8 +7,55 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+@import url('https://fonts.cdnfonts.com/css/circular-std');
+
 * {
-  font-family: 'Inter', 'Segoe UI', BlinkMacSystemFont, 'Segoe UI';
+  font-family: 'Inter', 'Segoe UI', BlinkMacSystemFont, 'Segoe UI',
+}
+
+.amplify-button {
+  font-family: 'Circular Std', 'Inter', 'Segoe UI', BlinkMacSystemFont, 'Segoe UI';
+  color: #000000;
+  border-radius: 50px;
+  font-weight: 600;
+  padding: 1.1rem 8rem 1.1rem;
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+}
+
+.amplify-text {
+  font-family: 'Circular Std', 'Inter', 'Segoe UI', BlinkMacSystemFont, 'Segoe UI';
+  color: #000000;
+}
+
+.dropdown-toggle {
+  font-family: 'Circular Std', 'Inter', 'Segoe UI', BlinkMacSystemFont, 'Segoe UI';
+  color: #000000;
+  border-radius: 50px;
+  font-weight: 600;
+  padding: 1.1rem 8rem 1.1rem;
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  background-color: #1ed760;
+}
+
+#season-dropdown, #year-dropdown {
+  font-family: 'Circular Std', 'Inter', 'Segoe UI', BlinkMacSystemFont, 'Segoe UI';
+  color: #000000;
+  background-color: #1ed760;
+  padding: 0.65rem 1.2rem 0.65rem;
+  font-weight: 600;
+  font-size: 0.75rem;
+  border-style: none;
+  letter-spacing: 2px;
+  border-radius: 50px;
+}
+
+.dropdown-menu {
+  font-family: 'Circular Std', 'Inter', 'Segoe UI', BlinkMacSystemFont, 'Segoe UI';
+  color: #000000;
+  border-style: none;
+  letter-spacing: 1.5px;
 }
 
 code {
