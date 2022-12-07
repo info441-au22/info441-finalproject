@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Dropdown } from "react-bootstrap";
-import { TextField, Flex, View, Button, Text } from "@aws-amplify/ui-react";
+import { TextField, Flex, View, Button, Text, CheckboxField, Tabs, TabItem, Heading } from "@aws-amplify/ui-react";
 
 const PLAYLIST_ENDPOINT = "https://api.spotify.com/v1/me/playlists?limit=50";
 const USER_ID_ENDPOINT = "https://api.spotify.com/v1/me";
@@ -9,6 +9,7 @@ const GET_PLAYLIST_ITEMS_ENDPOINT =
   "https://api.spotify.com/v1/playlists/2qFDu3xwuUBPaVs7gsD9jh/tracks"; //(not used yet)
 const ADD_SONGS_TO_PLAYLIST = "https://api.spotify.com/v1/playlists/";
 const CREATE_CUSTOM_PLAYLIST = "https://api.spotify.com/v1/users/";
+
 
 let playlistURI = [];
 
@@ -27,6 +28,16 @@ function Filters() {
   const [randomSongsLength, setRandomSongsLength] = useState(0);
   const [playlistURIs, setPlaylistURIs] = useState("");
   const [throwError, setThrowError] = useState(false);
+  const [selectGenreMap, setSelectedGenreMap] = useState(new Map());
+
+  //For recommendations
+  const [userSongsList, setUserSongsList] = useState([]);
+  const [userArtistList, setUserArtistList] = useState([]);
+  const [userGenresArr, setUserGenresArr] = useState([]);
+
+  const GET_RECOMMENDATIONS = "https://api.spotify.com/v1/recommendations/?seed_artists=" + userArtistList.slice(0,1).join(",") + "&seed_genres=" + 
+                              userGenresArr + "&seed_tracks=" + userSongsList[0] + "&limit=50";
+  
 
   // from: https://stackoverflow.com/questions/40263803/native-javascript-or-es6-way-to-encode-and-decode-html-entities
   const escapeHTML = (str) =>
@@ -49,6 +60,7 @@ function Filters() {
   };
 
   const handleSongLimit = (e) => {
+    playlistURI = [];
     setSongLimit(escapeHTML(e.target.value));
     // if theres more available random songs then is the limit set by the user we can run the handlers
     if (escapeHTML(e.target.value) > 100 || songLimit > 100) {
@@ -79,7 +91,7 @@ function Filters() {
 
   const years = [2019, 2020, 2021, 2022];
   const seasons = ["Spring", "Summer", "Fall", "Winter"];
-
+  const genres = ["classical", "hip-hop", "chill", "alternative", "disco", "afro-beat"];
   const date_constants = new Map();
   for (let i = 0; i < years.length; i++) {
     date_constants.set(years[i], {
@@ -129,6 +141,19 @@ function Filters() {
       </Dropdown.Item>
     );
   });
+
+  const genreCheckboxComponent = genres.map((genre) => {
+    return(
+      <CheckboxField
+          label={genre}
+          name={genre}
+          value={genre}
+          size="default"
+          onChange={(e) => {if(e.target.checked === true) {setUserGenresArr([...userGenresArr, e.target.value])}}}
+      />
+    )
+  })
+
   // Grab the user's spotify access token from local storage (this is after you press the log in button)
   useEffect(() => {
     if (localStorage.getItem("accessToken")) {
@@ -141,6 +166,20 @@ function Filters() {
     console.log(userId);
   }, []);
 
+  const handleGetRecommendations = () => {
+    axios
+      .get(GET_RECOMMENDATIONS, {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      })
+      .then((response) => {
+        console.log("Recommendations = ", response);
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+  }
   // this is returning a list of 50 of the users recent playlists
   const handleGetPlaylists = () => {
     axios
@@ -172,6 +211,12 @@ function Filters() {
       })
       .then((response) => {
         let songs = response.data.items;
+        //for recommendations
+        songs.forEach((song) => {
+          setUserSongsList(userSongsList => [...userSongsList, song.track.uri.substring(14, song.track.uri.length - 1)]);
+          setUserArtistList(userArtistList => [...userArtistList, song.track.artists[0].uri.substring(15, song.track.uri.length - 1)]);
+        })
+       
         function withinTimeframe(song) {
           const date_added = new Date(song.added_at);
           return (
@@ -332,7 +377,9 @@ function Filters() {
 
   return (
     <div>
-      <Flex
+      <Tabs justifyContent="flex-start">
+        <TabItem title="Time Capsule">
+        <Flex
         direction="column"
         justifyContent="center"
         alignItems="center"
@@ -555,6 +602,57 @@ function Filters() {
           </Text>
         </View>
       </Flex>
+        </TabItem>
+        <TabItem title="Recommendations">
+        <Flex
+        direction="column"
+        justifyContent="center"
+        alignItems="center"
+        alignContent="center"
+        wrap="nowrap"
+        padding={"2rem"}
+        gap="1rem"
+        >
+          <Heading
+            level={1} 
+            justifyContent="center"
+          >
+            Select Your Genre
+          </Heading>
+          <Flex
+          direction="row"
+          justifyContent="center"
+          alignItems="center"
+          alignContent="center"
+          wrap="nowrap"
+          gap="1rem"
+          >
+            {genreCheckboxComponent}
+          </Flex>
+          <Button
+            onClick={() => {
+              // const genresSelected = [];
+              // const genre_keys = selectGenreMap.keys();
+              // for(let i = 0; i < selectGenreMap.size; i++) {
+              //   const genre = genre_keys.next().value;
+              //   if(selectGenreMap.get(genre) === true) {
+              //     genresSelected.push(genre);
+              //   }
+              // }
+              // setUserGenresArr([...userGenresArr, genresSelected])
+              console.log(userGenresArr);
+              handleGetRecommendations();
+              setUserGenresArr([]);
+            }}
+            variation="primary"
+            size="large"
+            ariaLabel="Add song's to playlist button"
+          >
+            GET SONG RECOMMENDATIONS
+          </Button>
+        </Flex>
+        </TabItem>
+      </Tabs>
     </div>
   );
 }
