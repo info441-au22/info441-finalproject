@@ -39,7 +39,7 @@ body {
   background-color: #1ed760;
 }
 
-#season-dropdown, #year-dropdown {
+#season-dropdown, #year-dropdown, .getting-started-btn {
   font-family: 'Circular Std', 'Inter', 'Segoe UI', BlinkMacSystemFont, 'Segoe UI';
   color: #000000;
   background-color: #1ed760;
@@ -49,6 +49,17 @@ body {
   border-style: none;
   letter-spacing: 2px;
   border-radius: 50px;
+}
+
+#getting-started {
+  font-family: 'Circular Std', 'Inter', 'Segoe UI', BlinkMacSystemFont, 'Segoe UI';
+  color: black;
+  width: 700px;
+  height: 500px;
+}
+
+#getting-started h2, #getting-started h3 {
+  color:#1ed760;
 }
 
 .dropdown-menu {
