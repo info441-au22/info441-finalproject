@@ -51,6 +51,17 @@ body {
   border-radius: 50px;
 }
 
+#getting-started {
+  font-family: 'Circular Std', 'Inter', 'Segoe UI', BlinkMacSystemFont, 'Segoe UI';
+  color: black;
+  width: 700px;
+  height: 500px;
+}
+
+#getting-started h2, #getting-started h3 {
+  color:#1ed760;
+}
+
 .dropdown-menu {
   font-family: 'Circular Std', 'Inter', 'Segoe UI', BlinkMacSystemFont, 'Segoe UI';
   color: #000000;

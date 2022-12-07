@@ -2,6 +2,7 @@ import React from "react"; //import React Component
 import Filters from "./components/Filters.jsx";
 import Header from "./components/SpotifyAuthButton.jsx";
 import { Navbar, PageFooter } from "./components/Sections.jsx";
+import GettingStarted from "./components/GettingStarted.jsx"
 
 import "./styles.css";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -9,8 +10,11 @@ import "bootstrap/dist/css/bootstrap.min.css";
 function App() {
   return (
     <>
+
+
       <header>
         <Navbar />
+        <GettingStarted/>
       </header>
 
       <body>
