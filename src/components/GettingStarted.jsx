@@ -1,18 +1,35 @@
 import React from 'react'
 import Modal from 'react-modal'
+import { useEffect } from 'react';
 
 function GettingStarted() {
-  let subtitle;
-  const [modalIsOpen, setIsOpen] = React.useState(true);
+
+    const [visible, setVisible] = React.useState(true);
+    useEffect(()=>{
+    let pop_status = localStorage.getItem('pop_status');
+    if(!pop_status){
+        //setVisible(false);
+        localStorage.setItem('pop_status',1);
+    }
+    },[])
+    if(!visible) return (
+        <button class='getting-started-btn' onClick={(openModal)}>Getting Started</button>
+    );
 
 
   function closeModal() {
-    setIsOpen(false);
+    setVisible(false);
+  }
+
+  function openModal() {
+    setVisible(true)
   }
 
   return (
+      <div> 
+      <button class='getting-started-btn'>Getting Started</button>
       <Modal
-        isOpen={modalIsOpen}
+        isOpen={visible}
         onRequestClose={closeModal}
         contentLabel="Example Modal"
         id='getting-started'
@@ -32,6 +49,7 @@ function GettingStarted() {
             <button onClick={closeModal}>Close</button>
         </div>
       </Modal>
+      </div> 
   );
 }
 
