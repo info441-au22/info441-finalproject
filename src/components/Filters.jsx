@@ -213,8 +213,8 @@ function Filters() {
         let songs = response.data.items;
         //for recommendations
         songs.forEach((song) => {
-          setUserSongsList(userSongsList => [...userSongsList, song.track.uri.substring(14, song.track.uri.length - 1)]);
-          setUserArtistList(userArtistList => [...userArtistList, song.track.artists[0].uri.substring(15, song.track.uri.length - 1)]);
+          setUserSongsList(userSongsList => [...userSongsList, song.track.id]);
+          setUserArtistList(userArtistList => [...userArtistList, song.track.artists[0].id]);
         })
        
         function withinTimeframe(song) {
