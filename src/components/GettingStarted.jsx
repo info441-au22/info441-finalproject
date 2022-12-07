@@ -8,7 +8,7 @@ function GettingStarted() {
     useEffect(()=>{
     let pop_status = localStorage.getItem('pop_status');
     if(!pop_status){
-        //setVisible(false);
+        setVisible(false);
         localStorage.setItem('pop_status',1);
     }
     },[])
