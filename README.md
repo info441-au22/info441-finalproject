@@ -40,25 +40,37 @@ statistics associated with what type of music they listen to. Having the ability
 
 # Endpoints
 
-/signin
+**/signin**
+
 POST: Sign in
 
-/signout
+**/signout**
+
 POST: Sign out
 
-api.spotify.com/v1/me
+
+**api.spotify.com/v1/me**
+
 GET: Get userId (after auth)
 
-api.spotify.com/v1/playlists/
+
+**api.spotify.com/v1/playlists/**
+
 GET: Retrieve 50 playlists from users playlist library (or as many as exist) 
 
-api.spotify.com/v1/playlists/xxxxxxxx (playlist id)
+
+**api.spotify.com/v1/playlists/:playlistId
+
 GET: Retrieve a maximum of 100 songs from a playlist
 
-api.spotify.com/v1/users/:userId/playlists
+
+**api.spotify.com/v1/users/:userId/playlists**
+
 POST: Using userId of logged in user, create a new Spotify playlist
 
-api.spotify.com/v1/playlists/:createdPlaylistId/tracks
+
+**api.spotify.com/v1/playlists/:createdPlaylistId/tracks**
+
 POST: Using createdPlaylistId, populated the playlist with capsule of songs.
 
 # Database Schema (MongoDB)
