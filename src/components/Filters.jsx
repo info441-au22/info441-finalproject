@@ -147,16 +147,16 @@ function Filters() {
     ) {
       // if user goes over limit of random songs, set song limit back to max number of random songs
       setSongLimit(escapeHTML(e.target.value));
-      handleGetPlaylists();
-      handleGetUserId();
+      // handleGetPlaylists();
+      // handleGetUserId();
     } else if (!escapeHTML(e.target.value)) {
       // for when user erases # of songs completely, set to 0 instead of empty ""
       setSongLimit(0);
     } else {
       // for when user modifies input, show max # of songs one can add and what current number of songs is set to for user
       setSongLimit(escapeHTML(e.target.value));
-      handleGetPlaylists();
-      handleGetUserId();
+      // handleGetPlaylists();
+      // handleGetUserId();
     }
   };
 
@@ -340,7 +340,7 @@ function Filters() {
         }
         const songs_time_frame = songs.filter((song) => withinTimeframe(song));
         const shuffled_time_frame = [...songs_time_frame].sort(
-          () => 0.045 - Math.random()
+          () => 0.025 - Math.random()
         );
 
         let random_songs_arr = [];
@@ -472,6 +472,7 @@ function Filters() {
 
   return (
     <div>
+
       <Tabs padding="2rem" justifyContent="center">
         <TabItem title="Time Capsule">
           <Flex
@@ -644,7 +645,6 @@ function Filters() {
                   be added at one time is 100.
                 </Text>
               )}
-
               <br />
               <TextField
                 ariaLabel="Choose playlist name input"
