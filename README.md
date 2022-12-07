@@ -30,7 +30,7 @@ statistics associated with what type of music they listen to. Having the ability
 
 # Tech
 
-**Hosting:** Heroku
+**Hosting:** Netlify
 
 **Auth:** Spotify Auth 
 
