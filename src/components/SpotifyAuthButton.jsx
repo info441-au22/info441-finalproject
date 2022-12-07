@@ -28,7 +28,6 @@ const getReturnedParamsFromSpotifyAuth = (hash) => {
 function Header(props) {
   const [isLoggedIn, setLoggedIn] = useState(false);
 
-
   useEffect(() => {
     if (window.location.hash) {
       const { access_token, expires_in, token_type } =
@@ -63,22 +62,22 @@ function Header(props) {
       >
         <i className="fab fa-spotify" /> LOGIN WITH SPOTIFY
       </Button>
-      { isLoggedIn && 
+      {isLoggedIn && (
         <Text
+          id="logged-in-validation"
           variation="primary"
           as="p"
-          color="green"
           lineHeight="1.2rem"
-          fontWeight={800}
-          fontSize="1.2rem"
+          fontWeight={600}
+          fontSize="0.75rem"
           fontStyle="normal"
           textDecoration="none"
           ariaLabel="Login warning"
         >
-          You are Logged In!
-          </Text>
-      }
-      
+          YOU ARE LOGGED IN!
+        </Text>
+      )}
+
       <br />
     </Flex>
   );
