@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Dropdown } from "react-bootstrap";
 import { TextField, Flex, View, Button, Text, CheckboxField, Tabs, TabItem, Heading } from "@aws-amplify/ui-react";
+import DataTable from 'react-data-table-component';
 
 const PLAYLIST_ENDPOINT = "https://api.spotify.com/v1/me/playlists?limit=50";
 const USER_ID_ENDPOINT = "https://api.spotify.com/v1/me";
@@ -34,9 +35,33 @@ function Filters() {
   const [userSongsList, setUserSongsList] = useState([]);
   const [userArtistList, setUserArtistList] = useState([]);
   const [userGenresArr, setUserGenresArr] = useState([]);
+  let dataTableArr = [];
+  const columns = [
+    {
+      name: 'Track Name',
+      selector: row => row.name,
+    },
+    {
+      name: 'Artist/Artists',
+      selector: row => row.artists,
+    },
+    {
+      name: 'Cover Image',
+      selector: row => row.imagesrc,
+    },
+    {
+      name: 'Release Date',
+      selector: row => row.release_date,
+    },
+    {
+      name: 'Popularity(0-100)',
+      selector: row => row.popularity,
+    },
+
+  ]
 
   const GET_RECOMMENDATIONS = "https://api.spotify.com/v1/recommendations/?seed_artists=" + userArtistList.slice(0,1).join(",") + "&seed_genres=" + 
-                              userGenresArr + "&seed_tracks=" + userSongsList[0] + "&limit=50";
+                              userGenresArr + "&seed_tracks=" + userSongsList[0] + "&limit=20";
   
 
   // from: https://stackoverflow.com/questions/40263803/native-javascript-or-es6-way-to-encode-and-decode-html-entities
@@ -174,7 +199,24 @@ function Filters() {
         },
       })
       .then((response) => {
-        console.log("Recommendations = ", response);
+        console.log(response.data.tracks)
+        const temp_arr = [];
+        let count = 1;
+        response.data.tracks.forEach((song) => {
+          const songTableObject = {
+            "id": count,
+            "name": song.name,
+            "artists": song.artists,
+            "album": song.album.name,
+            "imgsrc": song.album.images !== null ? song.album.images[0].url : "",
+            "release_date": song.release_date,
+            "popularity": song.popularity,
+          };
+          console.log(songTableObject)
+          dataTableArr.push(songTableObject)
+          count++;
+        })
+        console.log("Data table array", dataTableArr)
       })
       .catch((error) => {
         console.log(error);
@@ -642,7 +684,7 @@ function Filters() {
               // setUserGenresArr([...userGenresArr, genresSelected])
               console.log(userGenresArr);
               handleGetRecommendations();
-              setUserGenresArr([]);
+              //setUserGenresArr([]);
             }}
             variation="primary"
             size="large"
@@ -650,6 +692,10 @@ function Filters() {
           >
             GET SONG RECOMMENDATIONS
           </Button>
+          <DataTable
+            columns={columns}
+            data={dataTableArr}
+          />
         </Flex>
         </TabItem>
       </Tabs>
