@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { Button, Flex } from "@aws-amplify/ui-react";
+import React, { useEffect, useState } from "react";
+import { Button, Flex, Text } from "@aws-amplify/ui-react";
 
 const CLIENT_ID = "1afe16f7b5c44f1ab21bc53d0af990fb";
 const SPOTIFY_AUTHORIZE_ENDPOINT = "https://accounts.spotify.com/authorize";
@@ -26,6 +26,9 @@ const getReturnedParamsFromSpotifyAuth = (hash) => {
 };
 
 function Header(props) {
+  const [isLoggedIn, setLoggedIn] = useState(false);
+
+
   useEffect(() => {
     if (window.location.hash) {
       const { access_token, expires_in, token_type } =
@@ -35,6 +38,7 @@ function Header(props) {
       localStorage.setItem("accessToken", access_token);
       localStorage.setItem("expiresIn", expires_in);
       localStorage.setItem("tokenType", token_type);
+      setLoggedIn(true);
     }
   });
   const handleLogin = () => {
@@ -59,6 +63,22 @@ function Header(props) {
       >
         <i className="fab fa-spotify" /> LOGIN WITH SPOTIFY
       </Button>
+      { isLoggedIn && 
+        <Text
+          variation="primary"
+          as="p"
+          color="green"
+          lineHeight="1.2rem"
+          fontWeight={800}
+          fontSize="1.2rem"
+          fontStyle="normal"
+          textDecoration="none"
+          ariaLabel="Login warning"
+        >
+          You are Logged In!
+          </Text>
+      }
+      
       <br />
     </Flex>
   );
