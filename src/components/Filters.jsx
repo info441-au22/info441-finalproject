@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Dropdown } from "react-bootstrap";
 import { TextField, Flex, View, Button, Text, CheckboxField, Tabs, TabItem, Heading } from "@aws-amplify/ui-react";
+import { DataGrid } from '@mui/x-data-grid';
 import DataTable from 'react-data-table-component';
 
 const PLAYLIST_ENDPOINT = "https://api.spotify.com/v1/me/playlists?limit=50";
@@ -35,29 +36,43 @@ function Filters() {
   const [userSongsList, setUserSongsList] = useState([]);
   const [userArtistList, setUserArtistList] = useState([]);
   const [userGenresArr, setUserGenresArr] = useState([]);
-  let dataTableArr = [];
+  const [dataTableArr, setDataTableArr] = useState([]);
   const columns = [
     {
-      name: 'Track Name',
-      selector: row => row.name,
+      field: 'id',
+      headerName: 'ID',
+      width:70
     },
     {
-      name: 'Artist/Artists',
-      selector: row => row.artists,
+      field: 'name',
+      headerName: 'Track Name',
+      width:200,
     },
     {
-      name: 'Cover Image',
-      selector: row => row.imagesrc,
+      field: 'artists',
+      headerName: 'Artist/Artists',
+      width:250,
     },
     {
-      name: 'Release Date',
-      selector: row => row.release_date,
+      field: 'album',
+      headerName: 'Album',
+      width:250
     },
     {
-      name: 'Popularity(0-100)',
-      selector: row => row.popularity,
+      field: 'imagesrc',
+      headerName: 'Cover Image',
+      width:250
     },
-
+    {
+      field: 'release_date',
+      headerName: 'Release Date',
+    },
+    {
+      field: 'popularity',
+      headerName: 'Popularity(0-100)',
+      sortable: true,
+      width:150
+    },
   ]
 
   const GET_RECOMMENDATIONS = "https://api.spotify.com/v1/recommendations/?seed_artists=" + userArtistList.slice(0,1).join(",") + "&seed_genres=" + 
@@ -200,23 +215,26 @@ function Filters() {
       })
       .then((response) => {
         console.log(response.data.tracks)
+        const tracks = response.data.tracks;
         const temp_arr = [];
         let count = 1;
-        response.data.tracks.forEach((song) => {
+        tracks.forEach((song) => {
+          const imageSrc = song.album.images !== null ? song.album.images[0].url : "";
           const songTableObject = {
             "id": count,
             "name": song.name,
-            "artists": song.artists,
+            "artists": song.artists[0].name,
             "album": song.album.name,
-            "imgsrc": song.album.images !== null ? song.album.images[0].url : "",
-            "release_date": song.release_date,
+            "imgsrc": `<img src=${imageSrc} width="50" height="50" >`,
+            "release_date": song.album.release_date,
             "popularity": song.popularity,
           };
           console.log(songTableObject)
-          dataTableArr.push(songTableObject)
+          temp_arr.push(songTableObject)
           count++;
         })
-        console.log("Data table array", dataTableArr)
+        console.log("Data table array", temp_arr);
+        setDataTableArr(temp_arr);
       })
       .catch((error) => {
         console.log(error);
@@ -673,15 +691,6 @@ function Filters() {
           </Flex>
           <Button
             onClick={() => {
-              // const genresSelected = [];
-              // const genre_keys = selectGenreMap.keys();
-              // for(let i = 0; i < selectGenreMap.size; i++) {
-              //   const genre = genre_keys.next().value;
-              //   if(selectGenreMap.get(genre) === true) {
-              //     genresSelected.push(genre);
-              //   }
-              // }
-              // setUserGenresArr([...userGenresArr, genresSelected])
               console.log(userGenresArr);
               handleGetRecommendations();
               //setUserGenresArr([]);
@@ -692,10 +701,23 @@ function Filters() {
           >
             GET SONG RECOMMENDATIONS
           </Button>
-          <DataTable
+          {/* <DataTable
             columns={columns}
             data={dataTableArr}
-          />
+          /> */}
+          <Flex
+          direction="row"
+          justifyContent="center"
+          alignItems="center"
+          alignContent="center"
+          wrap="nowrap"
+          gap="1rem"
+          height={"400px"}
+          width={"1300px"}
+          >
+            <DataGrid rows={dataTableArr} columns={columns} checkboxSelection pageSize={5}/>
+          </Flex>
+          
         </Flex>
         </TabItem>
       </Tabs>
