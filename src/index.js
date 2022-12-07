@@ -33,7 +33,7 @@ const theme = {
       tabs: {
         borderColor: { value: "#ffffff" },
         item: {
-          color: { value: "#FFFFFF" },
+          color: { value: "#000000" },
           fontSize: { value: "{fontSizes.xl}" },
           fontWeight: { value: "{fontWeights.bold}" },
           _hover: {

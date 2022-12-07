@@ -13,7 +13,6 @@ import {
   Heading,
 } from "@aws-amplify/ui-react";
 import { DataGrid } from "@mui/x-data-grid";
-import DataTable from "react-data-table-component";
 
 const PLAYLIST_ENDPOINT = "https://api.spotify.com/v1/me/playlists?limit=50";
 const USER_ID_ENDPOINT = "https://api.spotify.com/v1/me";
@@ -78,6 +77,13 @@ function Filters() {
       width: 250,
     },
     {
+      field: "image",
+      headerName: "Album Cover",
+      width: 150,
+      renderCell: (params) => 
+        <img height="80px" width="80px" src={params.row.image}/>
+    },
+    {
       field: "release_date",
       headerName: "Release Date",
     },
@@ -87,6 +93,14 @@ function Filters() {
       sortable: true,
       width: 150,
     },
+    {
+      field: "song_link",
+      headerName: "Song Link",
+      renderCell: (params) => 
+      <a href={params.row.song_link} target="_blank">Link</a>
+,
+      width: 150
+    }
   ];
 
   // from: https://stackoverflow.com/questions/40263803/native-javascript-or-es6-way-to-encode-and-decode-html-entities
@@ -253,21 +267,22 @@ function Filters() {
         const temp_arr = [];
         let count = 1;
         tracks.forEach((song) => {
-          const imageSrc =
-            song.album.images !== null ? song.album.images[0].url : "";
           const songTableObject = {
             id: count,
             name: song.name,
             artists: song.artists[0].name,
             album: song.album.name,
+            image: song.album.images[0].url,
             release_date: song.album.release_date,
             popularity: song.popularity,
+            song_link: song.external_urls.spotify,
+            
           };
-          console.log(songTableObject);
           temp_arr.push(songTableObject);
           count++;
         });
         setDataTableArr(temp_arr);
+        
       })
       .catch((error) => {
         console.log(error);
@@ -731,7 +746,7 @@ function Filters() {
               alignContent="center"
               wrap="nowrap"
               gap="1rem"
-              height={"400px"}
+              height={"625px"}
               width={"1300px"}
             >
               <DataGrid
@@ -739,6 +754,7 @@ function Filters() {
                 columns={columns}
                 checkboxSelection
                 pageSize={5}
+                rowHeight={100}
               />
             </Flex>
           </Flex>
