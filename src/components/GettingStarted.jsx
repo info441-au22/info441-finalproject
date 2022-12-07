@@ -46,7 +46,7 @@ function GettingStarted() {
             <li>Login with your Spotify account</li>
             <li>Fill out the fields based on your preference</li>
             <li>Create Playlist!</li>
-            <button onClick={closeModal}>Close</button>
+            <button class='getting-started-btn' onClick={closeModal}>Close</button>
         </div>
       </Modal>
       </div> 
