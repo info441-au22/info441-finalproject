@@ -17,7 +17,8 @@ statistics associated with what type of music they listen to. Having the ability
 |--------|----|-----------|------------------------|
 |P0|As a user|I want to be able to login with Spotify|Spotify Authentication| 
 |P0|As a user|As a Spotify user, I want to be able to select a time frame and create a randomized “Spotify Time Capsule” playlist from my library.|Grab songs that the user added to any of their playlists during the chosen time period from Spotify’s API (Get), and POST the songs to a playlist in the users library through the same API.
-|P1|As a user|As a Spotify user, I want to be able to select five genres and create a randomized “Spotify Genre Capsule” playlist from my library.|Grab genres that the user chooses (five of them), randomly select five artists and songs from the user’s library, send seed to Spotify’s API (Get), and POST the songs to a playlist in the users library through the same API.
+|P1|As a user|As a Spotify user, I want to be able to select genres and view recommendations that are curated from my playlist libraries artists and genres.|Grab genres that the user listens to and allow them to choose from them, then randomly select five artists and songs from the user’s library to generate a seed that is sent to Spotify’s API (Get). POST the songs to a table in the UI that lets the user see their recommendations.
+
 
 # Features
 
@@ -25,7 +26,7 @@ statistics associated with what type of music they listen to. Having the ability
 
 **2: "Time Capsule" functionality** - Let user select a given season and year, then create a random playlist of songs from that period that were in the users song library.
 
-**3: "Genre Capsule" functionality** - Let user select five genres, then create a random playlist of songs from those genres as recommendations.
+**3: "Recommendations" functionality** - Let user select from relevant genres, then create a list of recommended songs from those genres utilizing a unique seed tied to artists, songs, and genres the user has in their playlists library.
 
 # Tech
 
