@@ -37,6 +37,7 @@ function Filters() {
   const [userArtistList, setUserArtistList] = useState([]);
   const [userGenresArr, setUserGenresArr] = useState([]);
   const [dataTableArr, setDataTableArr] = useState([]);
+  
   const columns = [
     {
       field: 'id',
