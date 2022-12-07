@@ -1,18 +1,28 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Dropdown } from "react-bootstrap";
-import { TextField, Flex, View, Button, Text } from "@aws-amplify/ui-react";
+import {
+  TextField,
+  Flex,
+  View,
+  Button,
+  Text,
+  CheckboxField,
+  Tabs,
+  TabItem,
+  Heading,
+} from "@aws-amplify/ui-react";
+import { DataGrid } from "@mui/x-data-grid";
 
 const PLAYLIST_ENDPOINT = "https://api.spotify.com/v1/me/playlists?limit=50";
 const USER_ID_ENDPOINT = "https://api.spotify.com/v1/me";
-const GET_PLAYLIST_ITEMS_ENDPOINT =
-  "https://api.spotify.com/v1/playlists/2qFDu3xwuUBPaVs7gsD9jh/tracks"; //(not used yet)
 const ADD_SONGS_TO_PLAYLIST = "https://api.spotify.com/v1/playlists/";
 const CREATE_CUSTOM_PLAYLIST = "https://api.spotify.com/v1/users/";
 
 let playlistURI = [];
 
 function Filters() {
+  //For Time Capsule
   const [token, setToken] = useState("");
   const [validSongs, setValidSongs] = useState("");
   const [userId, setUserId] = useState({});
@@ -26,6 +36,72 @@ function Filters() {
   const [gatherSongs, handleGatherSongs] = useState(false);
   const [randomSongsLength, setRandomSongsLength] = useState(0);
   const [playlistURIs, setPlaylistURIs] = useState("");
+  const [throwError, setThrowError] = useState(false);
+  const [selectGenreMap, setSelectedGenreMap] = useState(new Map());
+
+  //For recommendations
+  const [userSongsList, setUserSongsList] = useState([]);
+  const [userArtistList, setUserArtistList] = useState([]);
+  const [userGenresArr, setUserGenresArr] = useState([]);
+  const [dataTableArr, setDataTableArr] = useState([]);
+  const [recommendationTab, setRecommendationTab] = useState(false);
+  const GET_RECOMMENDATIONS =
+    "https://api.spotify.com/v1/recommendations/?seed_artists=" +
+    userArtistList.slice(0, 1).join(",") +
+    "&seed_genres=" +
+    userGenresArr +
+    "&seed_tracks=" +
+    userSongsList[0] +
+    "&limit=20";
+
+  //columns for the data table
+  const columns = [
+    {
+      field: "id",
+      headerName: "ID",
+      width: 70,
+    },
+    {
+      field: "name",
+      headerName: "Track Name",
+      width: 200,
+    },
+    {
+      field: "artists",
+      headerName: "Artist/Artists",
+      width: 250,
+    },
+    {
+      field: "album",
+      headerName: "Album",
+      width: 250,
+    },
+    {
+      field: "image",
+      headerName: "Album Cover",
+      width: 150,
+      renderCell: (params) => 
+        <img height="80px" width="80px" src={params.row.image}/>
+    },
+    {
+      field: "release_date",
+      headerName: "Release Date",
+    },
+    {
+      field: "popularity",
+      headerName: "Popularity(0-100)",
+      sortable: true,
+      width: 150,
+    },
+    {
+      field: "song_link",
+      headerName: "Song Link",
+      renderCell: (params) => 
+      <a href={params.row.song_link} target="_blank">Link</a>
+,
+      width: 150
+    }
+  ];
 
   // from: https://stackoverflow.com/questions/40263803/native-javascript-or-es6-way-to-encode-and-decode-html-entities
   const escapeHTML = (str) =>
@@ -43,18 +119,26 @@ function Filters() {
             }[tag])
         );
 
+  //disables recommendations until user inputs song limit and time frame
+  const handleSongLimitAndRecommendation = (e) => {
+    handleSongLimit(e);
+    setRecommendationTab(true);
+  };
+
+  //sets the playlist name to the input field value
   const handlePlaylistName = (e) => {
     setPlaylistName(escapeHTML(e.target.value));
   };
 
+  //sets the song limit to the input field value and handles some error cases
   const handleSongLimit = (e) => {
+    playlistURI = [];
     setSongLimit(escapeHTML(e.target.value));
-    // if theres more available random songs then is the limit set by the user we can run the handlers
     if (escapeHTML(e.target.value) > 100 || songLimit > 100) {
       setSongLimit(100);
-      // handleGetPlaylists();
-      // handleGetUserId();
-    } else if (escapeHTML(e.target.value) == 0) {
+      handleGetPlaylists();
+      handleGetUserId();
+    } else if (escapeHTML(e.target.value) === 0) {
       setSongLimit(0);
     } else if (
       randomSongsLength > songLimit &&
@@ -76,9 +160,19 @@ function Filters() {
     }
   };
 
+  //arrays for components
   const years = [2019, 2020, 2021, 2022];
   const seasons = ["Spring", "Summer", "Fall", "Winter"];
+  const genres = [
+    "classical",
+    "hip-hop",
+    "chill",
+    "alternative",
+    "disco",
+    "afro-beat",
+  ];
 
+  //Dates map for time frame functions
   const date_constants = new Map();
   for (let i = 0; i < years.length; i++) {
     date_constants.set(years[i], {
@@ -101,12 +195,14 @@ function Filters() {
     });
   }
 
+  //Years drop down component
   const dropDownOptionsComponent = years.map((year) => {
     return (
       <Dropdown.Item
         onClick={() => {
           setYear(year);
           handleSelectYear(true);
+          setPlaylistURIs("");
         }}
       >
         {year}
@@ -114,18 +210,38 @@ function Filters() {
     );
   });
 
+  //Seasons drop down component
   const dropDownSeasonComponent = seasons.map((season) => {
     return (
       <Dropdown.Item
         onClick={() => {
           setSeason(season);
           handleSelectSeason(true);
+          setPlaylistURIs("");
         }}
       >
         {season}
       </Dropdown.Item>
     );
   });
+
+  //Checkbox for Genres
+  const genreCheckboxComponent = genres.map((genre) => {
+    return (
+      <CheckboxField
+        label={genre}
+        name={genre}
+        value={genre}
+        size="default"
+        onChange={(e) => {
+          if (e.target.checked === true) {
+            setUserGenresArr([...userGenresArr, e.target.value]);
+          }
+        }}
+      />
+    );
+  });
+
   // Grab the user's spotify access token from local storage (this is after you press the log in button)
   useEffect(() => {
     if (localStorage.getItem("accessToken")) {
@@ -138,7 +254,42 @@ function Filters() {
     console.log(userId);
   }, []);
 
-  // this is returning a list of 50 of the users recent playlists
+  // Handles the recommendation endpoint
+  const handleGetRecommendations = () => {
+    axios
+      .get(GET_RECOMMENDATIONS, {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      })
+      .then((response) => {
+        const tracks = response.data.tracks;
+        const temp_arr = [];
+        let count = 1;
+        tracks.forEach((song) => {
+          const songTableObject = {
+            id: count,
+            name: song.name,
+            artists: song.artists[0].name,
+            album: song.album.name,
+            image: song.album.images[0].url,
+            release_date: song.album.release_date,
+            popularity: song.popularity,
+            song_link: song.external_urls.spotify,
+            
+          };
+          temp_arr.push(songTableObject);
+          count++;
+        });
+        setDataTableArr(temp_arr);
+        
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  // Handles the get playlists endpoint
   const handleGetPlaylists = () => {
     axios
       .get(PLAYLIST_ENDPOINT, {
@@ -147,9 +298,7 @@ function Filters() {
         },
       })
       .then((response) => {
-        // initial response of json with 50 playlists
         for (let i = 0; i < response.data["items"].length; i++) {
-          // for (let i = 0; i < 5; i++) {
           let playlistEndpoint = response.data.items[i].tracks.href;
           handleGetPlaylistDetails(playlistEndpoint);
         }
@@ -169,6 +318,17 @@ function Filters() {
       })
       .then((response) => {
         let songs = response.data.items;
+        songs.forEach((song) => {
+          setUserSongsList((userSongsList) => [
+            ...userSongsList,
+            song.track.id,
+          ]);
+          setUserArtistList((userArtistList) => [
+            ...userArtistList,
+            song.track.artists[0].id,
+          ]);
+        });
+
         function withinTimeframe(song) {
           const date_added = new Date(song.added_at);
           return (
@@ -184,15 +344,13 @@ function Filters() {
         );
 
         let random_songs_arr = [];
-        let counter = 0;
-
+        let counter;
         if (shuffled_time_frame.length !== 0) {
           shuffled_time_frame.forEach(
             (song) => {
               random_songs_arr.push(song);
               counter++;
             }
-            // }
           );
         } else if (shuffled_time_frame.length === 0 && counter === 0) {
         } else if (shuffled_time_frame.length === 0 && counter !== 0) {
@@ -201,34 +359,22 @@ function Filters() {
         }
 
         let playlist_random_uri = [];
-
         for (let i = 0; i < songLimit; i++) {
           playlist_random_uri.push(random_songs_arr[i].track.uri.toString());
         }
-
-        console.log(playlistURI); // what does this return?
-        // (ex: {[[uri][uri][uri]], [[uri][uri]], [uri]}) we only get 3 when its 6 uris... lets fix this
-        playlistURI.push(playlist_random_uri); //
-        // take playlistURI object of arrays {[],[],[]}, and convert it into an array of string arrays [[]],[]],[]]]
-        let stringOfArrays = []; // now convert to single array, string of URIs separated by ',' ['uri,uri,uri']
+        playlistURI.push(playlist_random_uri); 
+        let stringOfArrays = [];
         for (const key in playlistURI) {
           stringOfArrays.push(playlistURI[key].toString());
         }
-
-        // we want to take the string thats separated by ',' then make it back into an array so that we can grab its length
-        // and see how many random songs we have returned in total
         stringOfArrays = stringOfArrays.toString();
         let countURIsFromArray = 0;
         const splitURIsInString = stringOfArrays.split(",");
         countURIsFromArray = splitURIsInString.length;
+        console.log(countURIsFromArray);
+        console.log(splitURIsInString);
         setRandomSongsLength(countURIsFromArray);
-        // go to create playlist handler for rest of code
         setPlaylistURIs(splitURIsInString);
-
-        // 	https://api.spotify.com/v1/playlists/{playlist_id}/tracks
-        // POST Docs:
-        // https://developer.spotify.com/documentation/web-api/reference/#/operations/add-tracks-to-playlist
-        // stuff to add songs to a newly created playlist
       })
       .catch((error) => {
         console.log(error);
@@ -254,7 +400,6 @@ function Filters() {
       ) {
         newPlaylistURIs.push(playlistURIs[i]);
       }
-      setSongLimit(songLimit);
       setPlaylistURIs(newPlaylistURIs);
     } else {
       for (let i = 0; i < songLimit; i++) {
@@ -278,10 +423,11 @@ function Filters() {
       .then((response) => {})
       .catch((error) => {
         console.log(error);
-        // alert();
+
         console.error(
           "You don't have any songs for the selected time frame. Select a different season and/or year, then gather songs and add to the playlist again."
         );
+        setThrowError(true);
       });
   };
 
@@ -326,189 +472,294 @@ function Filters() {
 
   return (
     <div>
-      <Flex
-        direction="column"
-        justifyContent="center"
-        alignItems="center"
-        alignContent="center"
-        wrap="nowrap"
-        gap="1rem"
-      >
-        <View>
-          <Dropdown>
-            <Dropdown.Toggle variant="success" id="season-dropdown">
-              SEASON
-            </Dropdown.Toggle>
-            <Dropdown.Menu>{dropDownSeasonComponent}</Dropdown.Menu>
-          </Dropdown>
-          <br />
-          <Dropdown>
-            <Dropdown.Toggle variant="success" id="year-dropdown">
-              YEAR
-            </Dropdown.Toggle>
-            <Dropdown.Menu>{dropDownOptionsComponent}</Dropdown.Menu>
-          </Dropdown>
-          <br />
-          
-          {season !== "" && year !== "" && (
-            <Text
-              variation="primary"
-              as="p"
-              color="#188754"
-              lineHeight="2rem"
-              fontWeight={500}
-              fontSize="1rem"
-              fontStyle="normal"
-              textDecoration="none"
-              width="30vw"
-              ariaLabel="Maximum number of songs dynamic field"
-            >
-              Your time frame is {season}, {year}.
-            </Text>
-          )}
-          {season === "" && year === "" && (
-            <Text
-              variation="primary"
-              as="p"
-              color="#000000"
-              lineHeight="2rem"
-              fontWeight={500}
-              fontSize="1rem"
-              fontStyle="normal"
-              textDecoration="none"
-              width="30vw"
-              ariaLabel="Maximum number of songs dynamic field"
-            >
-              You haven't selected the season or year.
-            </Text>
-          )}
 
-          <TextField
-            ariaLabel="Number of songs to add to playlist input"
-            type="number"
-            id="songLimit"
-            name="songLimit"
-            variation="quiet"
-            placeholder="# of Songs to add to Playlist"
-            onChange={handleSongLimit}
-            isRequired={true}
-          />
-          {songLimit % 1 !== 0 && (
-            <Text
-              variation="primary"
-              as="p"
-              color="red"
-              lineHeight="1.2rem"
-              fontWeight={400}
-              fontSize="0.75rem"
-              fontStyle="normal"
-              textDecoration="none"
-              width="30vw"
-              ariaLabel="Maximum number of songs dynamic field"
-            >
-              Please don't use decimal numbers.
-            </Text>
-          )}
-          {randomSongsLength > 0 && (
-            <Text
-              variation="primary"
-              as="p"
-              color="#188754"
-              lineHeight="1.2rem"
-              fontWeight={400}
-              fontSize="0.75rem"
-              fontStyle="normal"
-              textDecoration="none"
-              width="30vw"
-              ariaLabel="Maximum number of songs dynamic field"
-            >
-              Number of songs is set to {songLimit}. Number of random songs
-              processed is {randomSongsLength}. Max number of songs that can be
-              added at one time is 100.
-            </Text>
-          )}
-<br />
-          <Button
-            onClick={() => {
-              handleGatherSongs(false);
-              handleGetPlaylists();
-              handleGetUserId();
-              setPlaylistURIs("");
-              handleGatherSongs(false);
-              alert("We gathered your songs!");
-            }}
-            disabled={
-              songLimit % 1 !== 0 ||
-              !(selectSeason && selectYear) ||
-              songLimit === null
-            }
-            ariaLabel="Gather Songs Button"
+      <Tabs padding="2rem" justifyContent="center">
+        <TabItem title="Time Capsule">
+          <Flex
+            direction="column"
+            justifyContent="center"
+            alignItems="center"
+            alignContent="center"
+            wrap="nowrap"
+            gap="1rem"
           >
-            Gather your Songs...
-          </Button>
-          <br />
-          <br />
-          <TextField
-            ariaLabel="Choose playlist name input"
-            type="text"
-            id="playlistName"
-            name="playlistName"
-            variation="quiet"
-            placeholder="Choose a playlist name"
-            isRequired={true}
-            onChange={handlePlaylistName}
-          />
-          <br />
-          <Button
-            onClick={() => {
-              handleCreatePlaylist();
-              alert("Playlist created!");
-              console.log(
-                "Playlist URI create playlist button = ",
-                playlistURIs
-              );
-            }}
-            disabled={gatherSongs || playListName === ""}
-            ariaLabel="Create Playlist Button"
-          >
-            Create your Playlist
-          </Button>
-        </View>
+            {throwError == true && (
+              <Flex
+                direction="column"
+                justifyContent="center"
+                alignItems="center"
+                alignContent="center"
+                wrap="nowrap"
+                gap="1rem"
+                padding="2rem"
+              >
+                <View>
+                  <Text
+                    variation="primary"
+                    as="p"
+                    color="red"
+                    lineHeight="1.2rem"
+                    fontWeight={400}
+                    fontSize="0.75rem"
+                    fontStyle="normal"
+                    textDecoration="none"
+                    ariaLabel="Invalid time frame or no songs"
+                    textAlign="center"
+                  >
+                    Error: You are either rate limited or choose an invalid time
+                    period/one with no songs. <br /> Choose a different time
+                    period/give time for the rate limit reset. D:
+                  </Text>
+                </View>
+                <Button
+                  alignContent="center"
+                  onClick={() => {
+                    setThrowError(false);
+                    window.location.reload();
+                  }}
+                >
+                  OK
+                </Button>
+              </Flex>
+            )}
 
-        <View>
-          <br />
-          <Button
-            onClick={() => {
-              handleAddSongsToPlaylist();
-              console.log("Playlist URI add songs button = ", playlistURIs);
-              setPlaylistURIs("");
-              alert("Songs were added to the playlist!");
-              // window.location.reload();
-            }}
-            disabled={gatherSongs}
-            variation="primary"
-            size="large"
-            ariaLabel="Add song's to playlist button"
+            <View
+              as="div"
+              borderRadius="6px"
+              boxShadow="0 1px 2px rgba(0,0,0,0.07), 
+          0 2px 4px rgba(0,0,0,0.07), 
+          0 4px 8px rgba(0,0,0,0.07), 
+          0 8px 16px rgba(0,0,0,0.07),
+          0 16px 32px rgba(0,0,0,0.07), 
+          0 32px 64px rgba(0,0,0,0.07)"
+              padding="1rem"
+            >
+              <Text
+                variation="primary"
+                as="p"
+                color="#188754"
+                lineHeight="1.2rem"
+                fontWeight={400}
+                fontSize="0.75rem"
+                fontStyle="normal"
+                textDecoration="none"
+                width="30vw"
+                ariaLabel="Maximum number of songs dynamic field"
+              ></Text>
+              <View as="div" padding="1rem">
+                <Dropdown style={{ paddingBottom: "1rem" }}>
+                  <Dropdown.Toggle variant="success" id="season-dropdown">
+                    SEASON
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu>{dropDownSeasonComponent}</Dropdown.Menu>
+                </Dropdown>
+                <Dropdown style={{ paddingBottom: "1rem" }}>
+                  <Dropdown.Toggle variant="success" id="year-dropdown">
+                    YEAR
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu>{dropDownOptionsComponent}</Dropdown.Menu>
+                </Dropdown>
+                {season !== "" && year !== "" && (
+                  <Text
+                    variation="primary"
+                    as="p"
+                    color="#188754"
+                    lineHeight="2rem"
+                    fontWeight={500}
+                    fontSize="1rem"
+                    fontStyle="normal"
+                    textDecoration="none"
+                    width="30vw"
+                    ariaLabel="Maximum number of songs dynamic field"
+                  >
+                    Your time frame is {season}, {year}.
+                  </Text>
+                )}
+                {(season === "" || year === "") && (
+                  <Text
+                    variation="primary"
+                    as="p"
+                    color="#000000"
+                    lineHeight="2rem"
+                    fontWeight={500}
+                    fontSize="1rem"
+                    fontStyle="normal"
+                    textDecoration="none"
+                    width="30vw"
+                    ariaLabel="Maximum number of songs dynamic field"
+                  >
+                    You haven't selected the season or year.
+                  </Text>
+                )}
+              </View>
+
+              <TextField
+                ariaLabel="# of songs to add to playlist input"
+                type="number"
+                id="songLimit"
+                name="songLimit"
+                variation="quiet"
+                placeholder="# of Songs to add to Playlist"
+                onChange={(e) => {
+                  handleSongLimitAndRecommendation(e);
+                }}
+                disabled={season === "" || year === ""}
+                padding="1rem"
+                isRequired={true}
+              />
+              {songLimit % 1 !== 0 && (
+                <Text
+                  variation="primary"
+                  as="p"
+                  color="red"
+                  lineHeight="1.2rem"
+                  fontWeight={400}
+                  fontSize="0.75rem"
+                  fontStyle="normal"
+                  textDecoration="none"
+                  width="30vw"
+                  paddingLeft="1rem"
+                  paddingBottom="0.5rem"
+                  ariaLabel="Maximum number of songs dynamic field"
+                >
+                  Please don't use decimal numbers.
+                </Text>
+              )}
+              {randomSongsLength > 0 && (
+                <Text
+                  variation="primary"
+                  as="p"
+                  color="#188754"
+                  lineHeight="1.2rem"
+                  fontWeight={400}
+                  fontSize="0.75rem"
+                  fontStyle="normal"
+                  textDecoration="none"
+                  width="30vw"
+                  paddingLeft="1rem"
+                  paddingBottom="0.5rem"
+                  ariaLabel="Maximum number of songs dynamic field"
+                >
+                  Number of songs is set to {songLimit}. Number of random songs
+                  processed is {randomSongsLength}. Max number of songs that can
+                  be added at one time is 100.
+                </Text>
+              )}
+              <br />
+              <TextField
+                ariaLabel="Choose playlist name input"
+                type="text"
+                id="playlistName"
+                name="playlistName"
+                variation="quiet"
+                placeholder="Choose a playlist name"
+                isRequired={true}
+                padding="1rem"
+                onChange={handlePlaylistName}
+              />
+              <br />
+            </View>
+            <Button
+              onClick={() => {
+                handleCreatePlaylist();
+                alert("Playlist created!");
+                console.log(
+                  "Playlist URI create playlist button = ",
+                  playlistURIs
+                );
+              }}
+              disabled={gatherSongs || playListName === ""}
+              ariaLabel="Create Playlist Button"
+            >
+              Create Playlist
+            </Button>
+            <View>
+              <br />
+              <Button
+                onClick={() => {
+                  handleAddSongsToPlaylist();
+                  console.log("Playlist URI add songs button = ", playlistURIs);
+                  setPlaylistURIs("");
+                }}
+                disabled={gatherSongs}
+                size="large"
+                ariaLabel="Add song's to playlist button"
+              >
+                ADD SONGS TO PLAYLIST
+              </Button>
+            </View>
+            <View>
+              <Text
+                variation="primary"
+                as="p"
+                color="#188754"
+                lineHeight="1.2rem"
+                fontWeight={400}
+                fontSize="0.75rem"
+                fontStyle="normal"
+                textDecoration="none"
+                ariaLabel="Songs may repeat warning"
+              >
+                Songs may repeat based on users library size.
+              </Text>
+            </View>
+          </Flex>
+        </TabItem>
+        <TabItem disabled={!recommendationTab} title="Recommendations">
+          <Flex
+            direction="column"
+            justifyContent="center"
+            alignItems="center"
+            alignContent="center"
+            wrap="nowrap"
+            padding={"2rem"}
+            gap="1rem"
           >
-            ADD SONGS TO PLAYLIST
-          </Button>
-        </View>
-        <View>
-          <Text
-            variation="primary"
-            as="p"
-            color="#188754"
-            lineHeight="1.2rem"
-            fontWeight={400}
-            fontSize="0.75rem"
-            fontStyle="normal"
-            textDecoration="none"
-            ariaLabel="Songs may repeat warning"
-          >
-            Songs may repeat based on users library size.
-          </Text>
-        </View>
-      </Flex>
+            <Heading level={1} justifyContent="center">
+              Select Your Genre
+            </Heading>
+            <Flex
+              direction="row"
+              justifyContent="center"
+              alignItems="center"
+              alignContent="center"
+              wrap="nowrap"
+              gap="1rem"
+            >
+              {genreCheckboxComponent}
+            </Flex>
+            <Button
+              onClick={() => {
+                console.log(userGenresArr);
+                handleGetRecommendations();
+              }}
+              variation="primary"
+              size="large"
+              ariaLabel="Add song's to playlist button"
+            >
+              GET SONG RECOMMENDATIONS
+            </Button>
+            <Flex
+              direction="row"
+              justifyContent="center"
+              alignItems="center"
+              alignContent="center"
+              wrap="nowrap"
+              gap="1rem"
+              height={"625px"}
+              width={"1300px"}
+            >
+              <DataGrid
+                rows={dataTableArr}
+                columns={columns}
+                checkboxSelection
+                pageSize={5}
+                rowHeight={100}
+              />
+            </Flex>
+          </Flex>
+        </TabItem>
+      </Tabs>
     </div>
   );
 }

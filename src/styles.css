@@ -13,7 +13,7 @@ body {
   font-family: 'Inter', 'Segoe UI', BlinkMacSystemFont, 'Segoe UI',
 }
 
-.amplify-button {
+.amplify-button, .getting-started-btn {
   font-family: 'Circular Std', 'Inter', 'Segoe UI', BlinkMacSystemFont, 'Segoe UI';
   color: #000000;
   border-radius: 50px;
@@ -22,6 +22,12 @@ body {
   font-size: 0.8rem;
   letter-spacing: 2px;
   border-color: #1ed760;
+}
+
+#logged-in-validation {
+  font-family: 'Circular Std', 'Inter', 'Segoe UI', BlinkMacSystemFont, 'Segoe UI';
+  color: #000000;
+  letter-spacing: 2px;
 }
 
 .amplify-text {
@@ -40,7 +46,7 @@ body {
   background-color: #1ed760;
 }
 
-#season-dropdown, #year-dropdown {
+#season-dropdown, #year-dropdown, #close-button, .getting-started-btn {
   font-family: 'Circular Std', 'Inter', 'Segoe UI', BlinkMacSystemFont, 'Segoe UI';
   color: #000000;
   background-color: #1ed760;
@@ -50,6 +56,17 @@ body {
   border-style: none;
   letter-spacing: 2px;
   border-radius: 50px;
+}
+
+#getting-started {
+  font-family: 'Circular Std', 'Inter', 'Segoe UI', BlinkMacSystemFont, 'Segoe UI';
+  color: black;
+  width: 700px;
+  height: 500px;
+}
+
+#getting-started h2, #getting-started h3 {
+  color: #1ed760;
 }
 
 .dropdown-menu {
@@ -98,6 +115,7 @@ code {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
