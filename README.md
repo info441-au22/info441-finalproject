@@ -1,5 +1,5 @@
 # Project Description 
-### [click here to visit our live demo](https://spotify-recap.parsak.me/)
+### [click here to visit our live demo](https://dancing-smakager-83c27b.netlify.app/)
 
 For our project proposal, our target audience is going to be Spotify users. We envision Spotify users that are interested in viewing their analytics using our application to gain further insight on the things they listen to. People curious about their listening habits and how it evolves may want to use our application as a way to look at that information, then use it to further explore possible music interests. 
 
