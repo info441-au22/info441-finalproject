@@ -60,7 +60,7 @@ GET: Get userId (after auth)
 GET: Retrieve 50 playlists from users playlist library (or as many as exist) 
 
 
-**api.spotify.com/v1/playlists/:playlistId
+**api.spotify.com/v1/playlists/:playlistId**
 
 GET: Retrieve a maximum of 100 songs from a playlist
 
@@ -73,6 +73,10 @@ POST: Using userId of logged in user, create a new Spotify playlist
 **api.spotify.com/v1/playlists/:createdPlaylistId/tracks**
 
 POST: Using createdPlaylistId, populated the playlist with capsule of songs.
+
+**api.spotify.com/v1/recommendations/?seed_artists="[userArtistList]"&seed_genres="[userGenresArr]"&seed_tracks="[userSongsList]"&limit=20**
+
+GET: Using random artists, songs, and genres chosen by the user, GET a list of recommendations to display back to the user.
 
 # Database Schema (MongoDB)
 
