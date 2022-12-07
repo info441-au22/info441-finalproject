@@ -37,6 +37,7 @@ function Filters() {
   const [userArtistList, setUserArtistList] = useState([]);
   const [userGenresArr, setUserGenresArr] = useState([]);
   const [dataTableArr, setDataTableArr] = useState([]);
+  const [recommendationTab, setRecommendationTab] = useState(false);
   
   const columns = [
     {
@@ -95,6 +96,11 @@ function Filters() {
               '"': "&quot;",
             }[tag])
         );
+
+  const handleSongLimitAndRecommendation = (e) => {
+    handleSongLimit(e);
+    setRecommendationTab(true);
+  }
 
   const handlePlaylistName = (e) => {
     setPlaylistName(escapeHTML(e.target.value));
@@ -365,7 +371,7 @@ function Filters() {
       ) {
         newPlaylistURIs.push(playlistURIs[i]);
       }
-      setSongLimit(songLimit);
+      //setSongLimit(songLimit);
       setPlaylistURIs(newPlaylistURIs);
     } else {
       for (let i = 0; i < songLimit; i++) {
@@ -536,7 +542,7 @@ function Filters() {
                 Your time frame is {season}, {year}.
               </Text>
             )}
-            {season === "" && year === "" && (
+            {(season === "" || year === "") && (
               <Text
                 variation="primary"
                 as="p"
@@ -561,7 +567,8 @@ function Filters() {
             name="songLimit"
             variation="quiet"
             placeholder="# of Songs to add to Playlist"
-            onChange={handleSongLimit}
+            onChange={(e) => {handleSongLimitAndRecommendation(e)}}
+            disabled={season==="" || year===""}
             padding="1rem"
             isRequired={true}
           />
@@ -664,7 +671,7 @@ function Filters() {
         </View>
       </Flex>
         </TabItem>
-        <TabItem title="Recommendations">
+        <TabItem disabled={!recommendationTab} title="Recommendations" >
         <Flex
         direction="column"
         justifyContent="center"
