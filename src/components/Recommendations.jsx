@@ -1,5 +1,5 @@
 import React from 'react';
-import { Flex, Button, Heading } from '@aws-amplify/ui-react';
+import { Flex, Button, Heading, TextField } from '@aws-amplify/ui-react';
 import { DataGrid } from '@mui/x-data-grid';
 
 export function Recommendations(props) {
@@ -8,6 +8,11 @@ export function Recommendations(props) {
   const handleGetRecommendationsCallback =
     props.handleGetRecommendationsCallback;
   const genreCheckboxComponent = props.genreCheckboxComponent;
+  const setRecommendationsCallback = props.setRecommendationsCallback;
+  const handleRecommendationPlaylistNameCallback = props.handleRecommendationPlaylistNameCallback;
+  const createRecommendationPlaylistCallback = props.createRecommendationPlaylistCallback;
+  const addSongsToRecommendationPlaylistCallback = props.addSongsToRecommendationPlaylistCallback;
+
 
   return (
     <Flex
@@ -50,7 +55,7 @@ export function Recommendations(props) {
         wrap='nowrap'
         gap='1rem'
         height={'625px'}
-        width={'1300px'}
+        width={'1760px'}
       >
         <DataGrid
           rows={dataTableArr}
@@ -58,7 +63,42 @@ export function Recommendations(props) {
           checkboxSelection
           pageSize={5}
           rowHeight={100}
+          onSelectionModelChange={
+            (items) => { 
+              setRecommendationsCallback(items)
+            }            
+        }
         />
+        <Flex direction={"column"} padding={"2rem"}>
+          <TextField
+            ariaLabel="Choose playlist name input"
+            type="text"
+            id="playlistName"
+            name="playlistName"
+            variation="quiet"
+            placeholder="Choose a playlist name"
+            isRequired={true}
+            padding="1rem"
+            onChange={(e) => handleRecommendationPlaylistNameCallback(e)}
+          />
+          <Button
+            ariaLabel="Create Playlist Button"
+            onClick={() => {
+              createRecommendationPlaylistCallback();
+            }}
+          >
+            Create Playlist
+          </Button>
+          <Button
+            ariaLabel="Add songs Button"
+            onClick={() => {
+              addSongsToRecommendationPlaylistCallback();
+            }}
+          >
+            Add songs to the playlist
+          </Button>
+        </Flex>
+        
       </Flex>
     </Flex>
   );

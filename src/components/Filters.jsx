@@ -28,6 +28,12 @@ function Filters() {
   const [userArtistList, setUserArtistList] = useState([]);
   const [userGenresArr, setUserGenresArr] = useState([]);
   const [dataTableArr, setDataTableArr] = useState([]);
+  const [recommendationsURI, setRecommendationsURI] = useState([]);
+  const [recommendationPlaylistName, setRecommendationPlaylistName] = useState("");
+  const [recommendationPlaylistID, setRecommendationPlaylistID] = useState("");
+  console.log(recommendationPlaylistName);
+
+  console.log("Recommednations URI: ", recommendationsURI);
 
   const [year, setYear] = useState('');
   const [season, setSeason] = useState('');
@@ -98,12 +104,29 @@ function Filters() {
     userSongsList[0] +
     '&limit=20';
 
+  const setRecommendationsCallback = (items) => {
+    dataTableArr.forEach((track) => {
+      if(items.includes(track.id)) {
+        setRecommendationsURI([...recommendationsURI, track.uri])
+      }
+    })
+  }
+
+  const handleRecommendationPlaylistNameCallback = (e) => {
+    setRecommendationPlaylistName(e.target.value);
+  }
   // Columns for the Data Table
   const columns = [
     {
       field: 'id',
       headerName: 'ID',
       width: 70,
+    },
+    {
+      field: 'uri',
+      headerName: 'URI',
+      width: 0,
+      hide: true
     },
     {
       field: 'name',
@@ -250,11 +273,13 @@ function Filters() {
       })
       .then((response) => {
         const tracks = response.data.tracks;
+        console.log(tracks)
         const temp_arr = [];
         let count = 1;
         tracks.forEach((song) => {
           const songTableObject = {
             id: count,
+            uri: song.uri,
             name: song.name,
             artists: song.artists[0].name,
             album: song.album.name,
@@ -410,7 +435,50 @@ function Filters() {
         setThrowError(true);
       });
   };
+  
+  const createRecommendationPlaylist = () => {
+    let data = {
+      name: recommendationPlaylistName,
+      description:
+        'To be filled in with user picked recommendations.',
+    };
+    let config = {
+      method: 'post',
+      url: CREATE_CUSTOM_PLAYLIST + userId + '/playlists',
+      headers: {
+        Authorization: 'Bearer ' + token,
+        'Content-Type': 'application/json',
+      },
+      data: data,
+    };
+    axios(config)
+      .then((response) => {
+        setRecommendationPlaylistID(response.data.id);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
 
+  const addSongsToRecommendationPlaylist = () => {
+    let data = JSON.stringify({
+      uris: recommendationsURI,
+      position: 0,
+    });
+    let config = {
+      method: 'post',
+      url: ADD_SONGS_TO_PLAYLIST + recommendationPlaylistID + '/tracks',
+      headers: {
+        Authorization: 'Bearer ' + token,
+      },
+      data: data,
+    };
+    axios(config)
+      .then((response) => {})
+      .catch((error) => {
+        console.log(error);
+      });
+  }
   const handleCreatePlaylist = () => {
     let data = {
       name: playListName,
@@ -434,6 +502,7 @@ function Filters() {
         console.log(error);
       });
   };
+
 
   const handleGetUserId = () => {
     axios
@@ -476,6 +545,10 @@ function Filters() {
             columns={columns}
             handleGetRecommendationsCallback={handleGetRecommendations}
             genreCheckboxComponent={genreCheckboxComponent}
+            setRecommendationsCallback={setRecommendationsCallback}
+            handleRecommendationPlaylistNameCallback={handleRecommendationPlaylistNameCallback}
+            createRecommendationPlaylistCallback={createRecommendationPlaylist}
+            addSongsToRecommendationPlaylistCallback={addSongsToRecommendationPlaylist}
           />
         </TabItem>
       </Tabs>
