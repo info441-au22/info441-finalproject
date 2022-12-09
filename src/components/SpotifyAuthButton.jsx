@@ -3,8 +3,9 @@ import { Button, Flex, Text } from "@aws-amplify/ui-react";
 
 const CLIENT_ID = "1afe16f7b5c44f1ab21bc53d0af990fb";
 const SPOTIFY_AUTHORIZE_ENDPOINT = "https://accounts.spotify.com/authorize";
-const REDIRECT_URI = "https://spotify-capsule.herokuapp.com/"; // for auth on localhost
-// const REDIRECT_URI = "https://spotify-recap.parsak.me/"; // for auth on azure hosting
+const REDIRECT_URI = "http://localhost:3000/"
+//const REDIRECT_URI = "https://spotify-capsule.herokuapp.com/"; // for auth on localhost
+//const REDIRECT_URI = "https://spotify-recap.parsak.me/"; // for auth on azure hosting
 const SCOPES = [
   "playlist-read-collaborative",
   "playlist-modify-public",
@@ -38,6 +39,7 @@ function Header(props) {
       localStorage.setItem("expiresIn", expires_in);
       localStorage.setItem("tokenType", token_type);
       setLoggedIn(true);
+      setTimeout(() => setLoggedIn(false), expires_in); 
     }
   });
   const handleLogin = () => {

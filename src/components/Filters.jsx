@@ -45,6 +45,10 @@ function Filters() {
   const [userGenresArr, setUserGenresArr] = useState([]);
   const [dataTableArr, setDataTableArr] = useState([]);
   const [recommendationTab, setRecommendationTab] = useState(false);
+  const [checkboxCounter, setcheckboxCounter] = useState(0);
+  const [selectedRecommendations, setSelectedRecommendations] = useState([]);
+  const [playlistRecs, setPlaylistRecs] = useState([]);
+  const [playlistIdRecs, setPlaylistIdRecs] = useState([]);
   const GET_RECOMMENDATIONS =
     "https://api.spotify.com/v1/recommendations/?seed_artists=" +
     userArtistList.slice(0, 1).join(",") +
@@ -60,6 +64,11 @@ function Filters() {
       field: "id",
       headerName: "ID",
       width: 70,
+    },
+    {
+      field: "uri",
+      headerName: "URI",
+      width: 0,
     },
     {
       field: "name",
@@ -147,16 +156,16 @@ function Filters() {
     ) {
       // if user goes over limit of random songs, set song limit back to max number of random songs
       setSongLimit(escapeHTML(e.target.value));
-      // handleGetPlaylists();
-      // handleGetUserId();
+      handleGetPlaylists();
+      handleGetUserId();
     } else if (!escapeHTML(e.target.value)) {
       // for when user erases # of songs completely, set to 0 instead of empty ""
       setSongLimit(0);
     } else {
       // for when user modifies input, show max # of songs one can add and what current number of songs is set to for user
       setSongLimit(escapeHTML(e.target.value));
-      // handleGetPlaylists();
-      // handleGetUserId();
+      handleGetPlaylists();
+      handleGetUserId();
     }
   };
 
@@ -233,9 +242,18 @@ function Filters() {
         name={genre}
         value={genre}
         size="default"
+        //onSelect={(e)=>{if(e.target.checked)}}
         onChange={(e) => {
           if (e.target.checked === true) {
             setUserGenresArr([...userGenresArr, e.target.value]);
+            setcheckboxCounter(checkboxCounter + 1);
+            console.log(checkboxCounter)
+          } else if (e.target.checked === false) {
+            // setcheckboxChoice(true);
+            setcheckboxCounter(checkboxCounter - 1);
+            setUserGenresArr(gen => gen.filter((check) => e.target.value !== check));
+            console.log(userGenresArr)
+            console.log(checkboxCounter);
           }
         }}
       />
@@ -253,6 +271,104 @@ function Filters() {
   useEffect(() => {
     console.log(userId);
   }, []);
+
+  // Handles the recommendation endpoint
+  const handleGetRecommendations = () => {
+    axios
+      .get(GET_RECOMMENDATIONS, {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      })
+      .then((response) => {
+        const tracks = response.data.tracks;
+        const temp_arr = [];
+        let count = 1;
+        tracks.forEach((song) => {
+          const songTableObject = {
+            id: count,
+            uri: song.uri,
+            name: song.name,
+            artists: song.artists[0].name,
+            album: song.album.name,
+            image: song.album.images[0].url,
+            release_date: song.album.release_date,
+            popularity: song.popularity,
+            song_link: song.external_urls.spotify,
+            
+          };
+          temp_arr.push(songTableObject);
+          count++;
+        });
+        setDataTableArr(temp_arr);
+        
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+  
+  const handleAddRecommendations = () => {
+    let newPlaylistURIs = [];
+    console.log(selectedRecommendations);
+    console.log(dataTableArr);
+    //let temp_obj = {};
+    let temp = [];
+    let counter = 1;
+    for (const element of selectedRecommendations[0]) {
+      dataTableArr.map(val => {
+        if (element === val.id) {
+          let temp_obj = {
+            id: counter,
+            name: val.name,
+            artists: val.artists,
+          }
+          temp.push(temp_obj);
+          counter++;
+        }
+      })
+    }
+    console.log(temp); 
+    // for (const element of temp) {
+    //   const query = 	"https://api.spotify.com/v1/search?q=" + element.name + "%2C%20" + element.artists + "&type=track,artist&limit=1";
+    //   axios.get(query, {
+    //     headers: {
+    //       Authorization: "Bearer " + token,
+    //     },
+    //   })
+    //   .then((response) => {
+    //     console.log(response)
+    //     const trackUri = response.data.tracks.items[0].uri;
+    //     console.log(trackUri)
+    //     newPlaylistURIs.push(trackUri);
+    //     setPlaylistRecs(newPlaylistURIs);
+    //   })
+    //   .catch((error) =>  {
+    //     console.log(error);
+    //   })
+    // }
+  }
+
+  const handleAddingRecommendationsPlaylists = () => {
+    console.log(playlistRecs)
+    let data = JSON.stringify({
+      uris: playlistRecs,
+      position: 0,
+    });
+    let config = {
+      method: "post",
+      url: ADD_SONGS_TO_PLAYLIST + playlistIdRecs + "/tracks",
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+      data: data,
+    };
+    axios(config)
+      .then((response) => {})
+      .catch((error) => {
+        console.log(error);
+      });
+  }
 
   // this is returning a list of 50 of the users recent playlists
   const handleGetPlaylists = () => {
@@ -344,7 +460,8 @@ function Filters() {
       .catch((error) => {
         console.log(error);
         if (songLimit > randomSongsLength && randomSongsLength > 0) {
-          setSongLimit(randomSongsLength);
+          console.log(randomSongsLength);
+          setSongLimit(100);
         }
       });
   };
@@ -393,6 +510,30 @@ function Filters() {
           "You don't have any songs for the selected time frame. Select a different season and/or year, then gather songs and add to the playlist again."
         );
         setThrowError(true);
+      });
+  };
+
+  const handleCreatePlaylistRecommendations = () => {
+    let data = {
+      name: playListName,
+      description:
+        "To be filled in with randomized songs from a given time period.",
+    };
+    let config = {
+      method: "post",
+      url: CREATE_CUSTOM_PLAYLIST + userId + "/playlists",
+      headers: {
+        Authorization: "Bearer " + token,
+        "Content-Type": "application/json",
+      },
+      data: data,
+    };
+    axios(config)
+      .then((response) => {
+        setPlaylistIdRecs(response.data.id);
+      })
+      .catch(function (error) {
+        console.log(error);
       });
   };
 
@@ -448,7 +589,7 @@ function Filters() {
             wrap="nowrap"
             gap="1rem"
           >
-            {throwError == true && (
+            {throwError && (
               <Flex
                 direction="column"
                 justifyContent="center"
@@ -590,8 +731,8 @@ function Filters() {
                   Please don't use decimal numbers.
                 </Text>
               )}
-              {randomSongsLength > 0 && (
-                <Text
+              { randomSongsLength > 0 && 
+                  <Text
                   variation="primary"
                   as="p"
                   color="#188754"
@@ -609,7 +750,9 @@ function Filters() {
                   processed is {randomSongsLength}. Max number of songs that can
                   be added at one time is 100.
                 </Text>
-              )}
+              }
+                
+             
               <br />
               <TextField
                 ariaLabel="Choose playlist name input"
@@ -701,6 +844,7 @@ function Filters() {
               variation="primary"
               size="large"
               ariaLabel="Add song's to playlist button"
+              disabled={checkboxCounter === 0}
             >
               GET SONG RECOMMENDATIONS
             </Button>
@@ -717,11 +861,29 @@ function Filters() {
               <DataGrid
                 rows={dataTableArr}
                 columns={columns}
-                checkboxSelection
+                checkboxSelection={true}
                 pageSize={5}
                 rowHeight={100}
+                rowSelection
+                
+                onSelectionModelChange={(item) => { 
+                  setSelectedRecommendations([...selectedRecommendations, item.uri]);
+                }}
               />
             </Flex>
+            <TextField
+                ariaLabel="Choose playlist name input"
+                type="text"
+                id="playlistName"
+                name="playlistName"
+                variation="quiet"
+                placeholder="Choose a playlist name"
+                isRequired={true}
+                padding="1rem"
+                onChange={handlePlaylistName}
+              />
+              <Button onClick={() => {handleCreatePlaylistRecommendations(); handleAddRecommendations();}} >create playlist</Button>
+            <Button onClick={() => { handleAddingRecommendationsPlaylists(); setPlaylistRecs([]);}}>add songs to playlist</Button>
           </Flex>
         </TabItem>
       </Tabs>
@@ -740,3 +902,6 @@ export default Filters;
 // so we should disable number of songs in playlist button until user clicks on gather songs
 // after user 
 
+// set line 382 to 100, if still use dynamic processing
+// get recommendations button should disabled until selecting genre
+// 
