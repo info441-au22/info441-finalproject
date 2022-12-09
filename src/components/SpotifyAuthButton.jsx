@@ -38,6 +38,7 @@ function Header(props) {
       localStorage.setItem('expiresIn', expires_in);
       localStorage.setItem('tokenType', token_type);
       setLoggedIn(true);
+      setTimeout(() => setLoggedIn(false), expires_in);
     }
   });
   const handleLogin = () => {

@@ -9,10 +9,20 @@ export function Recommendations(props) {
     props.handleGetRecommendationsCallback;
   const genreCheckboxComponent = props.genreCheckboxComponent;
   const setRecommendationsCallback = props.setRecommendationsCallback;
-  const handleRecommendationPlaylistNameCallback = props.handleRecommendationPlaylistNameCallback;
-  const createRecommendationPlaylistCallback = props.createRecommendationPlaylistCallback;
-  const addSongsToRecommendationPlaylistCallback = props.addSongsToRecommendationPlaylistCallback;
-
+  const handleRecommendationPlaylistNameCallback =
+    props.handleRecommendationPlaylistNameCallback;
+  const createRecommendationPlaylistCallback =
+    props.createRecommendationPlaylistCallback;
+  const addSongsToRecommendationPlaylistCallback =
+    props.addSongsToRecommendationPlaylistCallback;
+  const checkboxCounter = props.checkboxCounter;
+  const setHandlePlaylistNameCheck = props.setHandlePlaylistNameCheck;
+  const handlePlaylistNameCheck = props.handlePlaylistNameCheck;
+  const setCreatePlaylistCheck = props.setCreatePlaylistCheck;
+  const handleCreatePlaylistCheck = props.handleCreatePlaylistCheck;
+  const setAddSongsButton = props.setAddSongsButton;
+  const handleAddSongsButton = props.handleAddSongsButton;
+  const setRecommendationsURI = props.setRecommendationsURI;
 
   return (
     <Flex
@@ -44,6 +54,7 @@ export function Recommendations(props) {
         variation='primary'
         size='large'
         ariaLabel="Add song's to playlist button"
+        disabled={checkboxCounter === 0 || checkboxCounter > 3}
       >
         GET SONG RECOMMENDATIONS
       </Button>
@@ -63,42 +74,56 @@ export function Recommendations(props) {
           checkboxSelection
           pageSize={5}
           rowHeight={100}
-          onSelectionModelChange={
-            (items) => { 
-              setRecommendationsCallback(items)
-            }            
-        }
+          onSelectionModelChange={(items) => {
+            if (items.length === 0) {
+              setHandlePlaylistNameCheck(true);
+            } else {
+              setHandlePlaylistNameCheck(false);
+            }
+            setRecommendationsCallback(items);
+          }}
         />
-        <Flex direction={"column"} padding={"2rem"}>
+        <Flex direction={'column'} padding={'2rem'}>
           <TextField
-            ariaLabel="Choose playlist name input"
-            type="text"
-            id="playlistName"
-            name="playlistName"
-            variation="quiet"
-            placeholder="Choose a playlist name"
+            ariaLabel='Choose playlist name input'
+            type='text'
+            id='playlistName'
+            name='playlistName'
+            variation='quiet'
+            placeholder='Choose a playlist name'
             isRequired={true}
-            padding="1rem"
-            onChange={(e) => handleRecommendationPlaylistNameCallback(e)}
+            padding='1rem'
+            disabled={handlePlaylistNameCheck}
+            onChange={(e) => {
+              handleRecommendationPlaylistNameCallback(e);
+              if (e.target.value !== '') {
+                setCreatePlaylistCheck(false);
+              } else {
+                setCreatePlaylistCheck(true);
+              }
+            }}
           />
           <Button
-            ariaLabel="Create Playlist Button"
+            ariaLabel='Create Playlist Button'
+            disabled={handleCreatePlaylistCheck}
             onClick={() => {
               createRecommendationPlaylistCallback();
+              setAddSongsButton(false);
             }}
           >
-            Create Playlist
+            CREATE PLAYLIST
           </Button>
           <Button
-            ariaLabel="Add songs Button"
+            ariaLabel='Add songs Button'
+            disabled={handleAddSongsButton}
             onClick={() => {
               addSongsToRecommendationPlaylistCallback();
+              setRecommendationsURI([]);
             }}
           >
-            Add songs to the playlist
+            ADD SONGS TO THE PLAYLIST
           </Button>
         </Flex>
-        
       </Flex>
     </Flex>
   );

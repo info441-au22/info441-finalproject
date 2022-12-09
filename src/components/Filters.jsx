@@ -29,11 +29,13 @@ function Filters() {
   const [userGenresArr, setUserGenresArr] = useState([]);
   const [dataTableArr, setDataTableArr] = useState([]);
   const [recommendationsURI, setRecommendationsURI] = useState([]);
-  const [recommendationPlaylistName, setRecommendationPlaylistName] = useState("");
-  const [recommendationPlaylistID, setRecommendationPlaylistID] = useState("");
-  console.log(recommendationPlaylistName);
-
-  console.log("Recommednations URI: ", recommendationsURI);
+  const [recommendationPlaylistName, setRecommendationPlaylistName] =
+    useState('');
+  const [recommendationPlaylistID, setRecommendationPlaylistID] = useState('');
+  const [checkboxCounter, setCheckboxCounter] = useState(0);
+  const [handlePlaylistNameCheck, setHandlePlaylistNameCheck] = useState(true);
+  const [handleCreatePlaylistCheck, setCreatePlaylistCheck] = useState(true);
+  const [handleAddSongsButton, setAddSongsButton] = useState(true);
 
   const [year, setYear] = useState('');
   const [season, setSeason] = useState('');
@@ -55,7 +57,6 @@ function Filters() {
       <Dropdown.Item
         onClick={() => {
           setYear(year);
-          //setPlaylistURIs("");
         }}
       >
         {year}
@@ -69,7 +70,6 @@ function Filters() {
       <Dropdown.Item
         onClick={() => {
           setSeason(season);
-          //setPlaylistURIs("");
         }}
       >
         {season}
@@ -88,6 +88,12 @@ function Filters() {
         onChange={(e) => {
           if (e.target.checked === true) {
             setUserGenresArr([...userGenresArr, e.target.value]);
+            setCheckboxCounter(checkboxCounter + 1);
+          } else if (e.target.checked === false) {
+            setCheckboxCounter(checkboxCounter - 1);
+            setUserGenresArr((gen) =>
+              gen.filter((check) => e.target.value !== check)
+            );
           }
         }}
       />
@@ -106,15 +112,15 @@ function Filters() {
 
   const setRecommendationsCallback = (items) => {
     dataTableArr.forEach((track) => {
-      if(items.includes(track.id)) {
-        setRecommendationsURI([...recommendationsURI, track.uri])
+      if (items.includes(track.id)) {
+        setRecommendationsURI([...recommendationsURI, track.uri]);
       }
-    })
-  }
+    });
+  };
 
   const handleRecommendationPlaylistNameCallback = (e) => {
     setRecommendationPlaylistName(e.target.value);
-  }
+  };
   // Columns for the Data Table
   const columns = [
     {
@@ -126,7 +132,7 @@ function Filters() {
       field: 'uri',
       headerName: 'URI',
       width: 0,
-      hide: true
+      hide: true,
     },
     {
       field: 'name',
@@ -148,7 +154,12 @@ function Filters() {
       headerName: 'Album Cover',
       width: 150,
       renderCell: (params) => (
-        <img height='80px' alt='Album Cover' width='80px' src={params.row.image} />
+        <img
+          height='80px'
+          alt='Album Cover'
+          width='80px'
+          src={params.row.image}
+        />
       ),
     },
     {
@@ -209,7 +220,10 @@ function Filters() {
       setSongLimit(100);
       handleGetPlaylists();
       handleGetUserId();
-    } else if (escapeHTML(e.target.value) === 0 || escapeHTML(e.target.value) === '') {
+    } else if (
+      escapeHTML(e.target.value) === 0 ||
+      escapeHTML(e.target.value) === ''
+    ) {
       setSongLimit(0);
     } else if (
       randomSongsLength > songLimit &&
@@ -273,7 +287,7 @@ function Filters() {
       })
       .then((response) => {
         const tracks = response.data.tracks;
-        console.log(tracks)
+        console.log(tracks);
         const temp_arr = [];
         let count = 1;
         tracks.forEach((song) => {
@@ -427,20 +441,19 @@ function Filters() {
     axios(config)
       .then((response) => {})
       .catch((error) => {
+        setThrowError(true);
         console.log(error);
 
         console.error(
-          "You don't have any songs for the selected time frame. Select a different season and/or year, then gather songs and add to the playlist again."
+          "You don't have any songs for the selected time frame. You may be rate limited. Select a different season and/or year, then gather songs and add to the playlist again."
         );
-        setThrowError(true);
       });
   };
-  
+
   const createRecommendationPlaylist = () => {
     let data = {
       name: recommendationPlaylistName,
-      description:
-        'To be filled in with user picked recommendations.',
+      description: 'To be filled in with user picked recommendations.',
     };
     let config = {
       method: 'post',
@@ -458,7 +471,7 @@ function Filters() {
       .catch(function (error) {
         console.log(error);
       });
-  }
+  };
 
   const addSongsToRecommendationPlaylist = () => {
     let data = JSON.stringify({
@@ -478,7 +491,7 @@ function Filters() {
       .catch((error) => {
         console.log(error);
       });
-  }
+  };
   const handleCreatePlaylist = () => {
     let data = {
       name: playListName,
@@ -502,7 +515,6 @@ function Filters() {
         console.log(error);
       });
   };
-
 
   const handleGetUserId = () => {
     axios
@@ -537,6 +549,7 @@ function Filters() {
             dropDownSeasonComponent={dropDownSeasonComponent}
             year={year}
             season={season}
+            throwErrorState={throwError}
           />
         </TabItem>
         <TabItem disabled={!recommendationTab} title='Recommendations'>
@@ -546,9 +559,21 @@ function Filters() {
             handleGetRecommendationsCallback={handleGetRecommendations}
             genreCheckboxComponent={genreCheckboxComponent}
             setRecommendationsCallback={setRecommendationsCallback}
-            handleRecommendationPlaylistNameCallback={handleRecommendationPlaylistNameCallback}
+            handleRecommendationPlaylistNameCallback={
+              handleRecommendationPlaylistNameCallback
+            }
             createRecommendationPlaylistCallback={createRecommendationPlaylist}
-            addSongsToRecommendationPlaylistCallback={addSongsToRecommendationPlaylist}
+            addSongsToRecommendationPlaylistCallback={
+              addSongsToRecommendationPlaylist
+            }
+            checkboxCounter={checkboxCounter}
+            setHandlePlaylistNameCheck={setHandlePlaylistNameCheck}
+            setCreatePlaylistCheck={setCreatePlaylistCheck}
+            handleCreatePlaylistCheck={handleCreatePlaylistCheck}
+            handlePlaylistNameCheck={handlePlaylistNameCheck}
+            setAddSongsButton={setAddSongsButton}
+            handleAddSongsButton={handleAddSongsButton}
+            setRecommendationsURI={setRecommendationsURI}
           />
         </TabItem>
       </Tabs>
