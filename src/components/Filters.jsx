@@ -1,157 +1,156 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import {
-  Tabs,
-  TabItem,
-  CheckboxField,
-} from "@aws-amplify/ui-react";
-import { Dropdown } from "react-bootstrap";
-import {TimeCapsule} from "./TimeCapsule.jsx";
-import {Recommendations} from "./Recommendations.jsx";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { Tabs, TabItem, CheckboxField } from '@aws-amplify/ui-react';
+import { Dropdown } from 'react-bootstrap';
+import { TimeCapsule } from './TimeCapsule.jsx';
+import { Recommendations } from './Recommendations.jsx';
 
-const PLAYLIST_ENDPOINT = "https://api.spotify.com/v1/me/playlists?limit=50";
-const USER_ID_ENDPOINT = "https://api.spotify.com/v1/me";
-const ADD_SONGS_TO_PLAYLIST = "https://api.spotify.com/v1/playlists/";
-const CREATE_CUSTOM_PLAYLIST = "https://api.spotify.com/v1/users/";
+const PLAYLIST_ENDPOINT = 'https://api.spotify.com/v1/me/playlists?limit=50';
+const USER_ID_ENDPOINT = 'https://api.spotify.com/v1/me';
+const ADD_SONGS_TO_PLAYLIST = 'https://api.spotify.com/v1/playlists/';
+const CREATE_CUSTOM_PLAYLIST = 'https://api.spotify.com/v1/users/';
 
 let playlistURI = [];
 
 function Filters() {
-  //For Time Capsule
-  const [token, setToken] = useState("");
+  // For Time Capsule
+  const [token, setToken] = useState('');
   const [userId, setUserId] = useState({});
-  const [createdPlaylistId, setCreatedPlaylistId] = useState("");
-  const [playListName, setPlaylistName] = useState("");
+  const [createdPlaylistId, setCreatedPlaylistId] = useState('');
+  const [playListName, setPlaylistName] = useState('');
   const [songLimit, setSongLimit] = useState(1);
   const [randomSongsLength, setRandomSongsLength] = useState(0);
-  const [playlistURIs, setPlaylistURIs] = useState("");
+  const [playlistURIs, setPlaylistURIs] = useState('');
   const [throwError, setThrowError] = useState(false);
-  
 
-  //For recommendations
+  // For Recommendations
   const [userSongsList, setUserSongsList] = useState([]);
   const [userArtistList, setUserArtistList] = useState([]);
   const [userGenresArr, setUserGenresArr] = useState([]);
   const [dataTableArr, setDataTableArr] = useState([]);
 
-
-  const [year, setYear] = useState("");
-  const [season, setSeason] = useState("");
-  //const arrays for components
+  const [year, setYear] = useState('');
+  const [season, setSeason] = useState('');
+  // Const Arrays for Components
   const years = [2019, 2020, 2021, 2022];
-  const seasons = ["Spring", "Summer", "Fall", "Winter"];
+  const seasons = ['Spring', 'Summer', 'Fall', 'Winter'];
   const genres = [
-    "classical",
-    "hip-hop",
-    "chill",
-    "alternative",
-    "disco",
-    "afro-beat",
+    'classical',
+    'hip-hop',
+    'chill',
+    'alternative',
+    'disco',
+    'afro-beat',
   ];
 
-  //Years drop down component
+  // Years Drop Down Component
   const dropDownOptionsComponent = years.map((year) => {
     return (
-    <Dropdown.Item
+      <Dropdown.Item
         onClick={() => {
-            setYear(year);
-            //setPlaylistURIs("");
+          setYear(year);
+          //setPlaylistURIs("");
         }}
-    >
+      >
         {year}
-    </Dropdown.Item>
+      </Dropdown.Item>
     );
   });
 
-  //Seasons drop down component
+  // Seasons Drop Down Component
   const dropDownSeasonComponent = seasons.map((season) => {
-      return (
+    return (
       <Dropdown.Item
-          onClick={() => {
-              setSeason(season);
-              //setPlaylistURIs("");
-          }}
+        onClick={() => {
+          setSeason(season);
+          //setPlaylistURIs("");
+        }}
       >
-          {season}
+        {season}
       </Dropdown.Item>
-      );
+    );
   });
-  //Checkbox for Genres
+
+  // Checkbox for Genres
   const genreCheckboxComponent = genres.map((genre) => {
     return (
-    <CheckboxField
+      <CheckboxField
         label={genre}
         name={genre}
         value={genre}
-        size="default"
+        size='default'
         onChange={(e) => {
-        if (e.target.checked === true) {
+          if (e.target.checked === true) {
             setUserGenresArr([...userGenresArr, e.target.value]);
-        }
+          }
         }}
-    />
+      />
     );
-});
+  });
 
   const [recommendationTab, setRecommendationTab] = useState(false);
   const GET_RECOMMENDATIONS =
-    "https://api.spotify.com/v1/recommendations/?seed_artists=" +
-    userArtistList.slice(0, 1).join(",") +
-    "&seed_genres=" +
+    'https://api.spotify.com/v1/recommendations/?seed_artists=' +
+    userArtistList.slice(0, 1).join(',') +
+    '&seed_genres=' +
     userGenresArr +
-    "&seed_tracks=" +
+    '&seed_tracks=' +
     userSongsList[0] +
-    "&limit=20";
+    '&limit=20';
 
-  //columns for the data table
+  // Columns for the Data Table
   const columns = [
     {
-      field: "id",
-      headerName: "ID",
+      field: 'id',
+      headerName: 'ID',
       width: 70,
     },
     {
-      field: "name",
-      headerName: "Track Name",
+      field: 'name',
+      headerName: 'Track Name',
       width: 200,
     },
     {
-      field: "artists",
-      headerName: "Artist/Artists",
+      field: 'artists',
+      headerName: 'Artist/Artists',
       width: 250,
     },
     {
-      field: "album",
-      headerName: "Album",
+      field: 'album',
+      headerName: 'Album',
       width: 250,
     },
     {
-      field: "image",
-      headerName: "Album Cover",
+      field: 'image',
+      headerName: 'Album Cover',
       width: 150,
-      renderCell: (params) => 
-        <img height="80px" width="80px" src={params.row.image}/>
+      renderCell: (params) => (
+        <img height='80px' alt='Album Cover' width='80px' src={params.row.image} />
+      ),
     },
     {
-      field: "release_date",
-      headerName: "Release Date",
+      field: 'release_date',
+      headerName: 'Release Date',
     },
     {
-      field: "popularity",
-      headerName: "Popularity(0-100)",
+      field: 'popularity',
+      headerName: 'Popularity(0-100)',
       sortable: true,
       width: 150,
     },
     {
-      field: "song_link",
-      headerName: "Song Link",
-      renderCell: (params) => 
-      <a href={params.row.song_link} target="_blank">Link</a>
-,
-      width: 150
-    }
+      field: 'song_link',
+      headerName: 'Song Link',
+      renderCell: (params) => (
+        <a href={params.row.song_link} target='_blank' rel='noreferrer'>
+          Link
+        </a>
+      ),
+      width: 150,
+    },
   ];
 
+  // Address Cross Site Scripting Vulnerabilities
   // from: https://stackoverflow.com/questions/40263803/native-javascript-or-es6-way-to-encode-and-decode-html-entities
   const escapeHTML = (str) =>
     !str
@@ -160,26 +159,26 @@ function Filters() {
           /[&<>'"]/g,
           (tag) =>
             ({
-              "&": "&amp;",
-              "<": "&lt;",
-              ">": "&gt;",
-              "'": "&#39;",
-              '"': "&quot;",
+              '&': '&amp;',
+              '<': '&lt;',
+              '>': '&gt;',
+              "'": '&#39;',
+              '"': '&quot;',
             }[tag])
         );
 
-  //disables recommendations until user inputs song limit and time frame
+  // disables recommendations until user inputs song limit and time frame
   const handleSongLimitAndRecommendation = (e) => {
     handleSongLimit(e);
     setRecommendationTab(true);
   };
 
-  //sets the playlist name to the input field value
+  // sets the playlist name to the input field value
   const handlePlaylistName = (e) => {
     setPlaylistName(escapeHTML(e.target.value));
   };
 
-  //sets the song limit to the input field value and handles some error cases
+  // sets the song limit to the input field value and handles some error cases
   const handleSongLimit = (e) => {
     playlistURI = [];
     setSongLimit(escapeHTML(e.target.value));
@@ -187,7 +186,7 @@ function Filters() {
       setSongLimit(100);
       handleGetPlaylists();
       handleGetUserId();
-    } else if (escapeHTML(e.target.value) === 0) {
+    } else if (escapeHTML(e.target.value) === 0 || escapeHTML(e.target.value) === '') {
       setSongLimit(0);
     } else if (
       randomSongsLength > songLimit &&
@@ -196,16 +195,16 @@ function Filters() {
     ) {
       // if user goes over limit of random songs, set song limit back to max number of random songs
       setSongLimit(escapeHTML(e.target.value));
-      // handleGetPlaylists();
-      // handleGetUserId();
+      handleGetPlaylists();
+      handleGetUserId();
     } else if (!escapeHTML(e.target.value)) {
       // for when user erases # of songs completely, set to 0 instead of empty ""
       setSongLimit(0);
     } else {
       // for when user modifies input, show max # of songs one can add and what current number of songs is set to for user
       setSongLimit(escapeHTML(e.target.value));
-      // handleGetPlaylists();
-      // handleGetUserId();
+      handleGetPlaylists();
+      handleGetUserId();
     }
   };
 
@@ -216,34 +215,29 @@ function Filters() {
   for (let i = 0; i < years.length; i++) {
     date_constants.set(years[i], {
       Winter: {
-        start: years[i] + "-12-21T00:00:00Z",
-        end: years[i + 1] + "-03-19T00:00:00Z",
+        start: years[i] + '-12-21T00:00:00Z',
+        end: years[i + 1] + '-03-19T00:00:00Z',
       },
       Spring: {
-        start: years[i] + "-03-20T00:00:00Z",
-        end: years[i] + "-06-20T00:00:00Z",
+        start: years[i] + '-03-20T00:00:00Z',
+        end: years[i] + '-06-20T00:00:00Z',
       },
       Summer: {
-        start: years[i] + "-06-21T00:00:00Z",
-        end: years[i] + "-09-21T00:00:00Z",
+        start: years[i] + '-06-21T00:00:00Z',
+        end: years[i] + '-09-21T00:00:00Z',
       },
       Fall: {
-        start: years[i] + "-09-22T00:00:00Z",
-        end: years[i] + "-12-20T00:00:00Z",
+        start: years[i] + '-09-22T00:00:00Z',
+        end: years[i] + '-12-20T00:00:00Z',
       },
     });
   }
 
   // Grab the user's spotify access token from local storage (this is after you press the log in button)
   useEffect(() => {
-    if (localStorage.getItem("accessToken")) {
-      setToken(localStorage.getItem("accessToken"));
+    if (localStorage.getItem('accessToken')) {
+      setToken(localStorage.getItem('accessToken'));
     }
-  }, []);
-
-  // Console logging state variables
-  useEffect(() => {
-    console.log(userId);
   }, []);
 
   // Handles the recommendation endpoint
@@ -251,7 +245,7 @@ function Filters() {
     axios
       .get(GET_RECOMMENDATIONS, {
         headers: {
-          Authorization: "Bearer " + token,
+          Authorization: 'Bearer ' + token,
         },
       })
       .then((response) => {
@@ -268,13 +262,11 @@ function Filters() {
             release_date: song.album.release_date,
             popularity: song.popularity,
             song_link: song.external_urls.spotify,
-            
           };
           temp_arr.push(songTableObject);
           count++;
         });
         setDataTableArr(temp_arr);
-        
       })
       .catch((error) => {
         console.log(error);
@@ -286,17 +278,17 @@ function Filters() {
     axios
       .get(PLAYLIST_ENDPOINT, {
         headers: {
-          Authorization: "Bearer " + token,
+          Authorization: 'Bearer ' + token,
         },
       })
       .then((response) => {
-        for (let i = 0; i < response.data["items"].length; i++) {
+        for (let i = 0; i < response.data['items'].length; i++) {
           let playlistEndpoint = response.data.items[i].tracks.href;
           handleGetPlaylistDetails(playlistEndpoint);
         }
       })
       .catch((error) => {
-        console.log("server side error in handleGetPlaylists: " + error);
+        console.log('server side error in handleGetPlaylists: ' + error);
       });
   };
 
@@ -305,7 +297,7 @@ function Filters() {
     axios
       .get(playlistId, {
         headers: {
-          Authorization: "Bearer " + token,
+          Authorization: 'Bearer ' + token,
         },
       })
       .then((response) => {
@@ -338,12 +330,10 @@ function Filters() {
         let random_songs_arr = [];
         let counter;
         if (shuffled_time_frame.length !== 0) {
-          shuffled_time_frame.forEach(
-            (song) => {
-              random_songs_arr.push(song);
-              counter++;
-            }
-          );
+          shuffled_time_frame.forEach((song) => {
+            random_songs_arr.push(song);
+            counter++;
+          });
         } else if (shuffled_time_frame.length === 0 && counter === 0) {
         } else if (shuffled_time_frame.length === 0 && counter !== 0) {
         } else {
@@ -354,24 +344,22 @@ function Filters() {
         for (let i = 0; i < songLimit; i++) {
           playlist_random_uri.push(random_songs_arr[i].track.uri.toString());
         }
-        playlistURI.push(playlist_random_uri); 
+        playlistURI.push(playlist_random_uri);
         let stringOfArrays = [];
         for (const key in playlistURI) {
           stringOfArrays.push(playlistURI[key].toString());
         }
         stringOfArrays = stringOfArrays.toString();
         let countURIsFromArray = 0;
-        const splitURIsInString = stringOfArrays.split(",");
+        const splitURIsInString = stringOfArrays.split(',');
         countURIsFromArray = splitURIsInString.length;
-        console.log(countURIsFromArray);
-        console.log(splitURIsInString);
         setRandomSongsLength(countURIsFromArray);
         setPlaylistURIs(splitURIsInString);
       })
       .catch((error) => {
         console.log(error);
         if (songLimit > randomSongsLength && randomSongsLength > 0) {
-          setSongLimit(randomSongsLength);
+          setSongLimit(100);
         }
       });
   };
@@ -400,15 +388,14 @@ function Filters() {
       setPlaylistURIs(newPlaylistURIs);
     }
     let data = JSON.stringify({
-      //uris: newPlaylistURIs,
-      uris: playlistURIs,
+      uris: newPlaylistURIs,
       position: 0,
     });
     let config = {
-      method: "post",
-      url: ADD_SONGS_TO_PLAYLIST + createdPlaylistId + "/tracks",
+      method: 'post',
+      url: ADD_SONGS_TO_PLAYLIST + createdPlaylistId + '/tracks',
       headers: {
-        Authorization: "Bearer " + token,
+        Authorization: 'Bearer ' + token,
       },
       data: data,
     };
@@ -428,14 +415,14 @@ function Filters() {
     let data = {
       name: playListName,
       description:
-        "To be filled in with randomized songs from a given time period.",
+        'To be filled in with randomized songs from a given time period.',
     };
     let config = {
-      method: "post",
-      url: CREATE_CUSTOM_PLAYLIST + userId + "/playlists",
+      method: 'post',
+      url: CREATE_CUSTOM_PLAYLIST + userId + '/playlists',
       headers: {
-        Authorization: "Bearer " + token,
-        "Content-Type": "application/json",
+        Authorization: 'Bearer ' + token,
+        'Content-Type': 'application/json',
       },
       data: data,
     };
@@ -452,11 +439,11 @@ function Filters() {
     axios
       .get(USER_ID_ENDPOINT, {
         headers: {
-          Authorization: "Bearer " + token,
+          Authorization: 'Bearer ' + token,
         },
       })
       .then((id) => {
-        setUserId(id.data["id"]);
+        setUserId(id.data['id']);
       })
       .catch((error) => {
         console.log(error);
@@ -465,18 +452,31 @@ function Filters() {
 
   return (
     <div>
-      <Tabs padding="2rem" justifyContent="center">
-        <TabItem title="Time Capsule">
-          <TimeCapsule handleSongLimitAndRecommendationCallback={handleSongLimitAndRecommendation} 
-          songLimit={songLimit} randomSongsLength={randomSongsLength} handlePlaylistNameCallback={handlePlaylistName}
-          playlistName={playListName} playlistURIs={playlistURIs} handleCreatePlaylistCallback={handleCreatePlaylist}
-          handleAddSongsToPlaylistCallback={handleAddSongsToPlaylist} throwErrorState={throwError}
-          dropDownOptionsComponent={dropDownOptionsComponent} dropDownSeasonComponent={dropDownSeasonComponent} year={year}
-          season={season} />
+      <Tabs padding='2rem' justifyContent='center'>
+        <TabItem title='Time Capsule'>
+          <TimeCapsule
+            handleSongLimitAndRecommendationCallback={
+              handleSongLimitAndRecommendation
+            }
+            songLimit={songLimit}
+            randomSongsLength={randomSongsLength}
+            handlePlaylistNameCallback={handlePlaylistName}
+            playlistName={playListName}
+            handleCreatePlaylistCallback={handleCreatePlaylist}
+            handleAddSongsToPlaylistCallback={handleAddSongsToPlaylist}
+            dropDownOptionsComponent={dropDownOptionsComponent}
+            dropDownSeasonComponent={dropDownSeasonComponent}
+            year={year}
+            season={season}
+          />
         </TabItem>
-        <TabItem disabled={!recommendationTab} title="Recommendations">
-          <Recommendations dataTableArr={dataTableArr} columns={columns} handleGetRecommendationsCallback={handleGetRecommendations} 
-          genreCheckboxComponent={genreCheckboxComponent}/>
+        <TabItem disabled={!recommendationTab} title='Recommendations'>
+          <Recommendations
+            dataTableArr={dataTableArr}
+            columns={columns}
+            handleGetRecommendationsCallback={handleGetRecommendations}
+            genreCheckboxComponent={genreCheckboxComponent}
+          />
         </TabItem>
       </Tabs>
     </div>

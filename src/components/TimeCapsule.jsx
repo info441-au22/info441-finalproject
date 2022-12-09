@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
     TextField,
     Flex,
@@ -16,18 +16,13 @@ export function TimeCapsule(props) {
     const randomSongsLength = props.randomSongsLength;
     const handlePlaylistNameCallback = props.handlePlaylistNameCallback;
     const playListName = props.playListName;
-    const playlistURIs = props.playlistURIs;
     const handleCreatePlaylistCallback = props.handleCreatePlaylistCallback;
     const handleAddSongsToPlaylistCallback = props.handleAddSongsToPlaylistCallback;
 
     const year = props.year;
     const season = props.season;
-    console.log("Playlist URIs", playlistURIs);
-    const years = props.years;
-    const seasons = props.seasons;
     const dropDownOptionsComponent = props.dropDownOptionsComponent;
     const dropDownSeasonComponent = props.dropDownSeasonComponent
-    const throwErrorState = props.throwErrorState;
 
     //state variables
     const [throwError, setThrowError] = useState(props.throwErrorState);
