@@ -1,18 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Dropdown } from "react-bootstrap";
 import {
-  TextField,
-  Flex,
-  View,
-  Button,
-  Text,
-  CheckboxField,
   Tabs,
   TabItem,
-  Heading,
+  CheckboxField,
 } from "@aws-amplify/ui-react";
-import { DataGrid } from "@mui/x-data-grid";
+import { Dropdown } from "react-bootstrap";
+import {TimeCapsule} from "./TimeCapsule.jsx";
+import {Recommendations} from "./Recommendations.jsx";
 
 const PLAYLIST_ENDPOINT = "https://api.spotify.com/v1/me/playlists?limit=50";
 const USER_ID_ENDPOINT = "https://api.spotify.com/v1/me";
@@ -24,26 +19,80 @@ let playlistURI = [];
 function Filters() {
   //For Time Capsule
   const [token, setToken] = useState("");
-  const [validSongs, setValidSongs] = useState("");
   const [userId, setUserId] = useState({});
-  const [year, setYear] = useState("");
-  const [season, setSeason] = useState("");
   const [createdPlaylistId, setCreatedPlaylistId] = useState("");
   const [playListName, setPlaylistName] = useState("");
-  const [selectYear, handleSelectYear] = useState(false);
-  const [selectSeason, handleSelectSeason] = useState(false);
   const [songLimit, setSongLimit] = useState(1);
-  const [gatherSongs, handleGatherSongs] = useState(false);
   const [randomSongsLength, setRandomSongsLength] = useState(0);
   const [playlistURIs, setPlaylistURIs] = useState("");
   const [throwError, setThrowError] = useState(false);
-  const [selectGenreMap, setSelectedGenreMap] = useState(new Map());
+  
 
   //For recommendations
   const [userSongsList, setUserSongsList] = useState([]);
   const [userArtistList, setUserArtistList] = useState([]);
   const [userGenresArr, setUserGenresArr] = useState([]);
   const [dataTableArr, setDataTableArr] = useState([]);
+
+
+  const [year, setYear] = useState("");
+  const [season, setSeason] = useState("");
+  //const arrays for components
+  const years = [2019, 2020, 2021, 2022];
+  const seasons = ["Spring", "Summer", "Fall", "Winter"];
+  const genres = [
+    "classical",
+    "hip-hop",
+    "chill",
+    "alternative",
+    "disco",
+    "afro-beat",
+  ];
+
+  //Years drop down component
+  const dropDownOptionsComponent = years.map((year) => {
+    return (
+    <Dropdown.Item
+        onClick={() => {
+            setYear(year);
+            //setPlaylistURIs("");
+        }}
+    >
+        {year}
+    </Dropdown.Item>
+    );
+  });
+
+  //Seasons drop down component
+  const dropDownSeasonComponent = seasons.map((season) => {
+      return (
+      <Dropdown.Item
+          onClick={() => {
+              setSeason(season);
+              //setPlaylistURIs("");
+          }}
+      >
+          {season}
+      </Dropdown.Item>
+      );
+  });
+  //Checkbox for Genres
+  const genreCheckboxComponent = genres.map((genre) => {
+    return (
+    <CheckboxField
+        label={genre}
+        name={genre}
+        value={genre}
+        size="default"
+        onChange={(e) => {
+        if (e.target.checked === true) {
+            setUserGenresArr([...userGenresArr, e.target.value]);
+        }
+        }}
+    />
+    );
+});
+
   const [recommendationTab, setRecommendationTab] = useState(false);
   const GET_RECOMMENDATIONS =
     "https://api.spotify.com/v1/recommendations/?seed_artists=" +
@@ -161,16 +210,6 @@ function Filters() {
   };
 
   //arrays for components
-  const years = [2019, 2020, 2021, 2022];
-  const seasons = ["Spring", "Summer", "Fall", "Winter"];
-  const genres = [
-    "classical",
-    "hip-hop",
-    "chill",
-    "alternative",
-    "disco",
-    "afro-beat",
-  ];
 
   //Dates map for time frame functions
   const date_constants = new Map();
@@ -194,53 +233,6 @@ function Filters() {
       },
     });
   }
-
-  //Years drop down component
-  const dropDownOptionsComponent = years.map((year) => {
-    return (
-      <Dropdown.Item
-        onClick={() => {
-          setYear(year);
-          handleSelectYear(true);
-          setPlaylistURIs("");
-        }}
-      >
-        {year}
-      </Dropdown.Item>
-    );
-  });
-
-  //Seasons drop down component
-  const dropDownSeasonComponent = seasons.map((season) => {
-    return (
-      <Dropdown.Item
-        onClick={() => {
-          setSeason(season);
-          handleSelectSeason(true);
-          setPlaylistURIs("");
-        }}
-      >
-        {season}
-      </Dropdown.Item>
-    );
-  });
-
-  //Checkbox for Genres
-  const genreCheckboxComponent = genres.map((genre) => {
-    return (
-      <CheckboxField
-        label={genre}
-        name={genre}
-        value={genre}
-        size="default"
-        onChange={(e) => {
-          if (e.target.checked === true) {
-            setUserGenresArr([...userGenresArr, e.target.value]);
-          }
-        }}
-      />
-    );
-  });
 
   // Grab the user's spotify access token from local storage (this is after you press the log in button)
   useEffect(() => {
@@ -408,7 +400,8 @@ function Filters() {
       setPlaylistURIs(newPlaylistURIs);
     }
     let data = JSON.stringify({
-      uris: newPlaylistURIs,
+      //uris: newPlaylistURIs,
+      uris: playlistURIs,
       position: 0,
     });
     let config = {
@@ -472,292 +465,18 @@ function Filters() {
 
   return (
     <div>
-
       <Tabs padding="2rem" justifyContent="center">
         <TabItem title="Time Capsule">
-          <Flex
-            direction="column"
-            justifyContent="center"
-            alignItems="center"
-            alignContent="center"
-            wrap="nowrap"
-            gap="1rem"
-          >
-            {throwError == true && (
-              <Flex
-                direction="column"
-                justifyContent="center"
-                alignItems="center"
-                alignContent="center"
-                wrap="nowrap"
-                gap="1rem"
-                padding="2rem"
-              >
-                <View>
-                  <Text
-                    variation="primary"
-                    as="p"
-                    color="red"
-                    lineHeight="1.2rem"
-                    fontWeight={400}
-                    fontSize="0.75rem"
-                    fontStyle="normal"
-                    textDecoration="none"
-                    ariaLabel="Invalid time frame or no songs"
-                    textAlign="center"
-                  >
-                    Error: You are either rate limited or choose an invalid time
-                    period/one with no songs. <br /> Choose a different time
-                    period/give time for the rate limit reset. D:
-                  </Text>
-                </View>
-                <Button
-                  alignContent="center"
-                  onClick={() => {
-                    setThrowError(false);
-                    window.location.reload();
-                  }}
-                >
-                  OK
-                </Button>
-              </Flex>
-            )}
-
-            <View
-              as="div"
-              borderRadius="6px"
-              boxShadow="0 1px 2px rgba(0,0,0,0.07), 
-          0 2px 4px rgba(0,0,0,0.07), 
-          0 4px 8px rgba(0,0,0,0.07), 
-          0 8px 16px rgba(0,0,0,0.07),
-          0 16px 32px rgba(0,0,0,0.07), 
-          0 32px 64px rgba(0,0,0,0.07)"
-              padding="1rem"
-            >
-              <Text
-                variation="primary"
-                as="p"
-                color="#188754"
-                lineHeight="1.2rem"
-                fontWeight={400}
-                fontSize="0.75rem"
-                fontStyle="normal"
-                textDecoration="none"
-                width="30vw"
-                ariaLabel="Maximum number of songs dynamic field"
-              ></Text>
-              <View as="div" padding="1rem">
-                <Dropdown style={{ paddingBottom: "1rem" }}>
-                  <Dropdown.Toggle variant="success" id="season-dropdown">
-                    SEASON
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu>{dropDownSeasonComponent}</Dropdown.Menu>
-                </Dropdown>
-                <Dropdown style={{ paddingBottom: "1rem" }}>
-                  <Dropdown.Toggle variant="success" id="year-dropdown">
-                    YEAR
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu>{dropDownOptionsComponent}</Dropdown.Menu>
-                </Dropdown>
-                {season !== "" && year !== "" && (
-                  <Text
-                    variation="primary"
-                    as="p"
-                    color="#188754"
-                    lineHeight="2rem"
-                    fontWeight={500}
-                    fontSize="1rem"
-                    fontStyle="normal"
-                    textDecoration="none"
-                    width="30vw"
-                    ariaLabel="Maximum number of songs dynamic field"
-                  >
-                    Your time frame is {season}, {year}.
-                  </Text>
-                )}
-                {(season === "" || year === "") && (
-                  <Text
-                    variation="primary"
-                    as="p"
-                    color="#000000"
-                    lineHeight="2rem"
-                    fontWeight={500}
-                    fontSize="1rem"
-                    fontStyle="normal"
-                    textDecoration="none"
-                    width="30vw"
-                    ariaLabel="Maximum number of songs dynamic field"
-                  >
-                    You haven't selected the season or year.
-                  </Text>
-                )}
-              </View>
-
-              <TextField
-                ariaLabel="# of songs to add to playlist input"
-                type="number"
-                id="songLimit"
-                name="songLimit"
-                variation="quiet"
-                placeholder="# of Songs to add to Playlist"
-                onChange={(e) => {
-                  handleSongLimitAndRecommendation(e);
-                }}
-                disabled={season === "" || year === ""}
-                padding="1rem"
-                isRequired={true}
-              />
-              {songLimit % 1 !== 0 && (
-                <Text
-                  variation="primary"
-                  as="p"
-                  color="red"
-                  lineHeight="1.2rem"
-                  fontWeight={400}
-                  fontSize="0.75rem"
-                  fontStyle="normal"
-                  textDecoration="none"
-                  width="30vw"
-                  paddingLeft="1rem"
-                  paddingBottom="0.5rem"
-                  ariaLabel="Maximum number of songs dynamic field"
-                >
-                  Please don't use decimal numbers.
-                </Text>
-              )}
-              {randomSongsLength > 0 && (
-                <Text
-                  variation="primary"
-                  as="p"
-                  color="#188754"
-                  lineHeight="1.2rem"
-                  fontWeight={400}
-                  fontSize="0.75rem"
-                  fontStyle="normal"
-                  textDecoration="none"
-                  width="30vw"
-                  paddingLeft="1rem"
-                  paddingBottom="0.5rem"
-                  ariaLabel="Maximum number of songs dynamic field"
-                >
-                  Number of songs is set to {songLimit}. Number of random songs
-                  processed is {randomSongsLength}. Max number of songs that can
-                  be added at one time is 100.
-                </Text>
-              )}
-              <br />
-              <TextField
-                ariaLabel="Choose playlist name input"
-                type="text"
-                id="playlistName"
-                name="playlistName"
-                variation="quiet"
-                placeholder="Choose a playlist name"
-                isRequired={true}
-                padding="1rem"
-                onChange={handlePlaylistName}
-              />
-              <br />
-            </View>
-            <Button
-              onClick={() => {
-                handleCreatePlaylist();
-                alert("Playlist created!");
-                console.log(
-                  "Playlist URI create playlist button = ",
-                  playlistURIs
-                );
-              }}
-              disabled={gatherSongs || playListName === ""}
-              ariaLabel="Create Playlist Button"
-            >
-              Create Playlist
-            </Button>
-            <View>
-              <br />
-              <Button
-                onClick={() => {
-                  handleAddSongsToPlaylist();
-                  console.log("Playlist URI add songs button = ", playlistURIs);
-                  setPlaylistURIs("");
-                }}
-                disabled={gatherSongs}
-                size="large"
-                ariaLabel="Add song's to playlist button"
-              >
-                ADD SONGS TO PLAYLIST
-              </Button>
-            </View>
-            <View>
-              <Text
-                variation="primary"
-                as="p"
-                color="#188754"
-                lineHeight="1.2rem"
-                fontWeight={400}
-                fontSize="0.75rem"
-                fontStyle="normal"
-                textDecoration="none"
-                ariaLabel="Songs may repeat warning"
-              >
-                Songs may repeat based on users library size.
-              </Text>
-            </View>
-          </Flex>
+          <TimeCapsule handleSongLimitAndRecommendationCallback={handleSongLimitAndRecommendation} 
+          songLimit={songLimit} randomSongsLength={randomSongsLength} handlePlaylistNameCallback={handlePlaylistName}
+          playlistName={playListName} playlistURIs={playlistURIs} handleCreatePlaylistCallback={handleCreatePlaylist}
+          handleAddSongsToPlaylistCallback={handleAddSongsToPlaylist} throwErrorState={throwError}
+          dropDownOptionsComponent={dropDownOptionsComponent} dropDownSeasonComponent={dropDownSeasonComponent} year={year}
+          season={season} />
         </TabItem>
         <TabItem disabled={!recommendationTab} title="Recommendations">
-          <Flex
-            direction="column"
-            justifyContent="center"
-            alignItems="center"
-            alignContent="center"
-            wrap="nowrap"
-            padding={"2rem"}
-            gap="1rem"
-          >
-            <Heading level={1} justifyContent="center">
-              Select Your Genre
-            </Heading>
-            <Flex
-              direction="row"
-              justifyContent="center"
-              alignItems="center"
-              alignContent="center"
-              wrap="nowrap"
-              gap="1rem"
-            >
-              {genreCheckboxComponent}
-            </Flex>
-            <Button
-              onClick={() => {
-                console.log(userGenresArr);
-                handleGetRecommendations();
-              }}
-              variation="primary"
-              size="large"
-              ariaLabel="Add song's to playlist button"
-            >
-              GET SONG RECOMMENDATIONS
-            </Button>
-            <Flex
-              direction="row"
-              justifyContent="center"
-              alignItems="center"
-              alignContent="center"
-              wrap="nowrap"
-              gap="1rem"
-              height={"625px"}
-              width={"1300px"}
-            >
-              <DataGrid
-                rows={dataTableArr}
-                columns={columns}
-                checkboxSelection
-                pageSize={5}
-                rowHeight={100}
-              />
-            </Flex>
-          </Flex>
+          <Recommendations dataTableArr={dataTableArr} columns={columns} handleGetRecommendationsCallback={handleGetRecommendations} 
+          genreCheckboxComponent={genreCheckboxComponent}/>
         </TabItem>
       </Tabs>
     </div>
