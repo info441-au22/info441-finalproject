@@ -1,5 +1,5 @@
 # Project Description 
-### [click here to visit our live demo](https://spotify-recap.parsak.me/)
+### [click here to visit our live demo](https://dancing-smakager-83c27b.netlify.app/)
 
 For our project proposal, our target audience is going to be Spotify users. We envision Spotify users that are interested in viewing their analytics using our application to gain further insight on the things they listen to. People curious about their listening habits and how it evolves may want to use our application as a way to look at that information, then use it to further explore possible music interests. 
 
@@ -16,86 +16,80 @@ statistics associated with what type of music they listen to. Having the ability
 |Priority|User|Description|Technical Implementation| 
 |--------|----|-----------|------------------------|
 |P0|As a user|I want to be able to login with Spotify|Spotify Authentication| 
-|P0|As a user|I want to be able to select a time frame and create a randomized “Spotify capsules” playlist from the users library that is shareable and filterable.|Grab songs that the user added to any of their playlists during the given metric  from Spotify’s API (Get), and POST the songs to a playlist in the users library through the same API.
-|P1|As a user|I want to be able to select a genre and create a randomized “Spotify capsules” playlist from the users library that is shareable and filterable.|Grab songs that the user added to any of their playlists during the given metric  from Spotify’s API (Get), and POST the songs to a playlist in the users library through the same API. 
-|P2|As a user|I want to be able to create/save a current “leaderboard” of most played and least played songs from my library which can appear to friends.|Grab user stat data from Spotify’s API, and POST the snapshot to the user database.|
-|P3|As a user|I want to be able to share my leaderboard with others|Generate a shareable screenshot OR public link to view friend’s leaderboard|
-|P4|As a user|I want to be able to check other friend’s leaderboards, Spotify capsules, and public profiles.|Display all of the leaderboards, Spotify capsules, and their public profile to the user’s friends entries in the database (GET request).|
+|P0|As a user|As a Spotify user, I want to be able to select a time frame and create a randomized “Spotify Time Capsule” playlist from my library.|Grab songs that the user added to any of their playlists during the chosen time period from Spotify’s API (Get), and POST the songs to a playlist in the users library through the same API.
+|P1|As a user|As a Spotify user, I want to be able to select genres and view recommendations that are curated from my playlist libraries artists and genres.|Grab genres that the user listens to and allow them to choose from them, then randomly select five artists and songs from the user’s library to generate a seed that is sent to Spotify’s API (Get). POST the songs to a table in the UI that lets the user see their recommendations.
+
 
 # Features
 
-**1: "Capsules" functionality** - grab songs from a given genre/time-frame and create a playlist.
+**1: Accounts** - Spotify user account auth that allows Capsules to export into your Spotify playlists library.
 
-**2: Leaderboards** - display a user's top ten most and least played songs, playlists, in a given time-frame.
+**2: "Time Capsule" functionality** - Let user select a given season and year, then create a random playlist of songs from that period that were in the users song library.
 
-**3: Accounts** - Spotify user accounts auth with sharing/export for capsules and leaderboards.
-- Sharing - share your leaderboards to others (png, link)
+**3: "Recommendations" functionality** - Let user select from relevant genres, then create a list of recommended songs from those genres utilizing a unique seed tied to artists, songs, and genres the user has in their playlists library.
 
 # Tech
-**Hosting:** Azure
+
+**Hosting:** Netlify
 
 **Auth:** Spotify Auth 
 
-**Server:** Expressjs
+**Tech:** Reactjs, MongoDB, Axios and Spotify API
 
-**Tech:** Reactjs, MongoDB, Spotify API
-
-**Styling:** TailwindCSS? MaterialUI? AmplifyUI?
+**Styling:** AmplifyUI
 
 
 # Endpoints
 
-/signin
+**/signin**
+
 POST: Sign in
 
-/signout
+**/signout**
+
 POST: Sign out
 
-/profile
-GET: Retrieve profile data of given username in the query (?username=)
 
-/createtimecapsule
-POST: Use given time frame(?timeframe=)  to compile all songs user has added to any playlist during this time into one playlist in user’s Spotify library 
+**api.spotify.com/v1/me**
 
-/createrandomplaylist
-POST:  Use given genre (?genre=) to create a playlist that lives inside user’s Spotify library
+GET: Get userId (after auth)
 
-/createlink
-GET: Create shareable link for a given playlist or leaderboard snapshot
 
-/leaderboards
-GET: Returns user’s top stats for a given time period
+**api.spotify.com/v1/playlists/**
+
+GET: Retrieve 50 playlists from users playlist library (or as many as exist) 
+
+
+**api.spotify.com/v1/playlists/:playlistId**
+
+GET: Retrieve a maximum of 100 songs from a playlist
+
+
+**api.spotify.com/v1/users/:userId/playlists**
+
+POST: Using userId of logged in user, create a new Spotify playlist
+
+
+**api.spotify.com/v1/playlists/:createdPlaylistId/tracks**
+
+POST: Using createdPlaylistId, populated the playlist with capsule of songs.
+
+**api.spotify.com/v1/recommendations/?seed_artists="[userArtistList]"&seed_genres="[userGenresArr]"&seed_tracks="[userSongsList]"&limit=20**
+
+GET: Using random artists, songs, and genres chosen by the user, GET a list of recommendations to display back to the user.
 
 # Database Schema (MongoDB)
 
 #### User
 - User ID
-- Username
-- Name
-- Email
-- DOB
 
-#### Leaderboards
-- Playlists
-- Songs
-- Dates
+#### Songs
+- Song URI
 
-#### Session
-- Session ID
-- Current Users
+#### Artists
+- Artist URI
 
 #### Playlists
 - Playlist ID
-- Genre
-- User ID
-- Playlist Link
 
-#### Song
-- Song ID
-- Artist Name
-- Song Name
-- Playlists (JSON Column with Playlist ID’s)
-- Times Skipped
-- Number of Listens
-- Play History(JSON Column with Dates when it was played by a user)
-
+###### **Note:** Why didn't we used saved songs? We explored this- We know not everybody makes playlists, but Spotify API has limitations in place for retrieving a users saved songs. With the current functionality they offer, we could only process 50 saved songs at a time. With playlists we are also limited to 50, but with 50 playlists we are able to offer a lot more variety then with 50 songs.
