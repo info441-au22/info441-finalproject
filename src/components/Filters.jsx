@@ -4,6 +4,7 @@ import { Tabs, TabItem, CheckboxField } from '@aws-amplify/ui-react';
 import { Dropdown } from 'react-bootstrap';
 import { TimeCapsule } from './TimeCapsule.jsx';
 import { Recommendations } from './Recommendations.jsx';
+import models from '../models/models.js';
 
 const PLAYLIST_ENDPOINT = 'https://api.spotify.com/v1/me/playlists?limit=50';
 const USER_ID_ENDPOINT = 'https://api.spotify.com/v1/me';
@@ -22,6 +23,9 @@ function Filters() {
   const [randomSongsLength, setRandomSongsLength] = useState(0);
   const [playlistURIs, setPlaylistURIs] = useState('');
   const [throwError, setThrowError] = useState(false);
+  const [createdPlaylistIdsCount, setCreatedPlaylistIdsCount] = useState(
+    getPlaylistIDCount()
+  );
 
   // For Recommendations
   const [userSongsList, setUserSongsList] = useState([]);
@@ -287,7 +291,6 @@ function Filters() {
       })
       .then((response) => {
         const tracks = response.data.tracks;
-        console.log(tracks);
         const temp_arr = [];
         let count = 1;
         tracks.forEach((song) => {
@@ -396,7 +399,7 @@ function Filters() {
         setPlaylistURIs(splitURIsInString);
       })
       .catch((error) => {
-        console.log(error);
+        console.log(error); // happens during rate limit/if api cant keep up
         if (songLimit > randomSongsLength && randomSongsLength > 0) {
           setSongLimit(100);
         }
@@ -467,6 +470,7 @@ function Filters() {
     axios(config)
       .then((response) => {
         setRecommendationPlaylistID(response.data.id);
+        postPlaylistID(response.data.id);
       })
       .catch(function (error) {
         console.log(error);
@@ -510,6 +514,7 @@ function Filters() {
     axios(config)
       .then((response) => {
         setCreatedPlaylistId(response.data.id);
+        postPlaylistID(response.data.id);
       })
       .catch(function (error) {
         console.log(error);
@@ -531,6 +536,43 @@ function Filters() {
       });
   };
 
+  function getPlaylistIDCount() {
+    // Make a GET request to localhost:8080 to fetch the playlistId
+    axios
+      .get('http://localhost:8080/api/playlists/playlistIds') // change when hosting
+      .then((response) => {
+        setCreatedPlaylistIdsCount(response.data.count);
+        // If the request was successful, log to the console
+      })
+      .catch((error) => {
+        // If there was an error, log it to the console
+        // console.log(error);
+      });
+  }
+
+  function postPlaylistID(playlistId) {
+    var data = JSON.stringify({
+      playlistId,
+    });
+
+    var config = {
+      method: 'post',
+      url: 'http://localhost:8080/api/playlists/', // change when hosting
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: data,
+    };
+
+    axios(config)
+      .then((response) => {
+        getPlaylistIDCount();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
   return (
     <div>
       <Tabs padding='2rem' justifyContent='center'>
@@ -550,6 +592,7 @@ function Filters() {
             year={year}
             season={season}
             throwErrorState={throwError}
+            createdPlaylistIdsCount={createdPlaylistIdsCount}
           />
         </TabItem>
         <TabItem disabled={!recommendationTab} title='Recommendations'>

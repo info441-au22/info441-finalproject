@@ -18,6 +18,7 @@ export function TimeCapsule(props) {
   const season = props.season;
   const dropDownOptionsComponent = props.dropDownOptionsComponent;
   const dropDownSeasonComponent = props.dropDownSeasonComponent;
+  const createdPlaylistIdsCount = props.createdPlaylistIdsCount;
 
   return (
     <Flex
@@ -216,7 +217,6 @@ export function TimeCapsule(props) {
         <Button
           onClick={() => {
             handleAddSongsToPlaylistCallback();
-            //setPlaylistURIs("");
           }}
           size='large'
           ariaLabel="Add song's to playlist button"
@@ -239,6 +239,22 @@ export function TimeCapsule(props) {
           Songs may repeat based on users library size.
         </Text>
       </View>
+      {createdPlaylistIdsCount > 0 && (
+        <Text
+          variation='primary'
+          as='p'
+          color='#188754'
+          lineHeight='2rem'
+          fontWeight={400}
+          fontSize='1rem'
+          fontStyle='normal'
+          textDecoration='none'
+          ariaLabel='Songs may repeat warning'
+        >
+          Since 2022, our users have created{' '}
+          <strong>{createdPlaylistIdsCount}</strong> playlists.
+        </Text>
+      )}
     </Flex>
   );
 }

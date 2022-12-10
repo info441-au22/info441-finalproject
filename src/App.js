@@ -1,7 +1,7 @@
 import React from "react"; //import React Component
 import Filters from "./components/Filters.jsx";
 import Header from "./components/SpotifyAuthButton.jsx";
-import { Navbar, PageFooter } from "./components/Sections.jsx";
+import { PageFooter } from "./components/Sections.jsx";
 import GettingStarted from "./components/GettingStarted.jsx";
 
 import "./styles.css";
@@ -17,10 +17,6 @@ function App() {
       <body>
         <Header />
         <Filters />
-        {/* <Routes>
-          <Route path='/home' element={<Header />} />
-          <Route path='/home' element={<Filters />} />
-        </Routes> */}
       </body>
 
       <footer>
