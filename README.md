@@ -1,3 +1,12 @@
+# Quick Start Guide (VSCode & NPM)
+
+1. Open directory in VSCode
+2. In VSCode terminal, run `npm install`.
+3. Once installed, run `npm start`
+4. Open another VSCode terminal in same window and run `cd .\src\`
+5. run `node server.js`
+6. You now have both the React app running and the database/server side. Visit `localhost:3000` and get started!
+
 # Project Description 
 ### [click here to visit our live demo](https://dancing-smakager-83c27b.netlify.app/)
 
